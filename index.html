@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Unchart</title>
+<meta name="description" content="Paste a screenshot of any chart and get the numbers behind it. Runs entirely in your browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap">
+<style>
+/* Layout: a dark gallery console. One strange printed object in the corner, everything else is instrument:
+   hairlines, mono labels, crosshairs. Orange is the only ink the machine uses. Deliberately single theme. */
+:root{
+  --bg:#0A0A0B; --surface:#111113; --raised:#17171A; --line:#242428; --line2:#323238;
+  --fg:#ECECEA; --muted:#8C8C92; --dim:#5A5A60;
+  --signal:#FF5A1F; --signal-soft:rgba(255,90,31,.14); --ok:#3DDC97; --ok-soft:rgba(61,220,151,.12); --warn:#FFB020; --warn-soft:rgba(255,176,32,.13);
+  --serif:"Instrument Serif","Iowan Old Style",Georgia,serif;
+  --sans:"Geist",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"Geist Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--bg)}
+body{margin:0;color:var(--fg);font:15px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}
+a{color:inherit}
+:focus-visible{outline:1.5px solid var(--signal);outline-offset:2px}
+.k{font:500 10.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.wrap{max-width:1360px;margin:0 auto;padding-inline:clamp(16px,3vw,36px);padding-block:0 48px}
+
+/* top strip */
+.hud{display:flex;align-items:center;gap:18px;height:44px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.hud .mark{font:500 12px/1 var(--mono);letter-spacing:.22em}
+.hud .mark b{color:var(--signal);font-weight:500}
+.hud .sp{flex:1}
+.live{display:inline-flex;align-items:center;gap:8px}
+.live i{width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px var(--ok-soft)}
+.hud a{text-decoration:none}
+.hud a:hover{color:var(--fg)}
+@media (max-width:640px){.hud .hide-s{display:none}}
+
+/* hero */
+.hero{position:relative;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px;align-items:end;padding-block:44px 30px;overflow:hidden}
+.hero h1{margin:0;font:400 clamp(44px,6.4vw,92px)/.92 var(--serif);letter-spacing:-.02em;text-wrap:balance}
+.hero h1 i{color:var(--signal)}
+.hero p{margin:18px 0 0;max-width:34em;color:var(--muted);font-size:16.5px}
+.hero p b{color:var(--fg);font-weight:500}
+.keys{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+.keys span{font:500 11.5px/1 var(--mono);color:var(--muted);border:1px solid var(--line2);padding:8px 10px;border-radius:7px;letter-spacing:.04em}
+.keys kbd{font:inherit;color:var(--fg)}
+.object{position:relative;align-self:stretch;min-height:240px}
+.object .melt{position:absolute;right:-12px;top:-44px;width:min(560px,100%);aspect-ratio:984/792;background:var(--fg);
+  -webkit-mask:url(art/melt.png) right top/contain no-repeat;mask:url(art/melt.png) right top/contain no-repeat;opacity:.9}
+.object .melt.ink{background:var(--signal);transform:translate(-6px,4px);opacity:.75;mix-blend-mode:screen}
+.object .cap{position:absolute;left:0;bottom:4px;max-width:15em}
+@media (max-width:860px){.object .cap{display:none}}
+.object .cap b{display:block;font:italic 400 17px var(--serif);color:var(--fg);letter-spacing:0;text-transform:none;margin-top:6px}
+@media (max-width:860px){.hero{grid-template-columns:minmax(0,1fr)}.object{min-height:200px;order:-1;margin-bottom:-30px}.object .melt{width:min(420px,100%)}}
+
+/* console */
+.console{display:grid;grid-template-columns:minmax(0,1.38fr) minmax(0,1fr);border:1px solid var(--line);background:var(--surface)}
+@media (max-width:980px){.console{grid-template-columns:minmax(0,1fr)}}
+.col{min-width:0;display:flex;flex-direction:column}
+.col+.col{border-left:1px solid var(--line)}
+@media (max-width:980px){.col+.col{border-left:0;border-top:1px solid var(--line)}}
+@media (max-width:560px){.stagebox{min-height:0;padding:32px 12px 14px}.readline .sp+span{display:none}}
+.phead{display:flex;align-items:center;gap:12px;padding:0 14px;height:42px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.phead .n{font:500 10.5px var(--mono);color:var(--signal);letter-spacing:.14em}
+.phead .sp{flex:1}
+.tb{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--line)}
+.btn{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 13px;border:1px solid var(--line2);background:var(--raised);border-radius:7px;cursor:pointer;font-size:13.5px;white-space:nowrap}
+.btn:hover{border-color:var(--fg)}
+.btn.go{background:var(--fg);color:var(--bg);border-color:var(--fg);font-weight:500}
+.btn.go:hover{background:#fff}
+.btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.6}
+.chip{height:30px;padding:0 11px;border:1px solid var(--line);background:transparent;border-radius:7px;cursor:pointer;font-size:12.5px;color:var(--muted);display:inline-flex;align-items:center;gap:8px}
+.chip:hover{color:var(--fg);border-color:var(--line2)}
+.chip[aria-pressed="true"]{color:var(--fg);border-color:var(--fg)}
+.chip img{width:26px;height:16px;object-fit:cover;border-radius:2px;opacity:.85}
+.seg{display:inline-flex;border:1px solid var(--line2);border-radius:7px;overflow:hidden}
+.seg button{border:0;background:transparent;height:28px;padding:0 10px;font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+
+.stagebox{position:relative;padding:34px 22px 22px;display:flex;justify-content:center;align-items:center;min-height:340px;touch-action:none;
+  background:radial-gradient(circle at 1px 1px,var(--line) 1px,transparent 1.4px) 0 0/18px 18px,var(--bg)}
+.frame{position:relative;max-width:100%;line-height:0}
+.frame::before,.frame::after{content:"";position:absolute;width:16px;height:16px;border:1px solid var(--signal);pointer-events:none}
+.frame::before{left:-8px;top:-8px;border-right:0;border-bottom:0}
+.frame::after{right:-8px;bottom:-8px;border-left:0;border-top:0}
+.frame canvas{display:block;max-width:100%;height:auto}
+#ov,#sel{position:absolute;inset:0;width:100%;height:100%}
+#sel{cursor:crosshair}
+#src{transition:opacity .25s}
+#src.dim{opacity:.16}
+.scan{position:absolute;top:-6px;bottom:-6px;width:1px;background:var(--signal);box-shadow:0 0 22px 3px var(--signal-soft);pointer-events:none}
+.tip{position:absolute;pointer-events:none;background:var(--fg);color:var(--bg);font:500 11.5px/1.35 var(--mono);padding:6px 8px;border-radius:7px;white-space:nowrap;transform:translate(-50%,calc(-100% - 14px));z-index:3}
+.cropgo{position:absolute;transform:translate(-50%,10px);line-height:1.4;z-index:3}
+.tag{position:absolute;left:0;top:-24px;line-height:1;font:500 10px var(--mono);letter-spacing:.14em;color:var(--bg);background:var(--fg);padding:5px 7px;border-radius:2px;z-index:2}
+.drop{position:absolute;inset:10px;border:1px dashed var(--signal);background:rgba(10,10,11,.86);display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:center;z-index:4}
+.drop b{font:italic 400 34px var(--serif)}
+.readline{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:9px 14px;border-top:1px solid var(--line);font:400 11.5px var(--mono);color:var(--muted);min-height:38px}
+.readline .xy{color:var(--fg)}
+.readline .sp{flex:1}
+
+.pipe{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line)}
+.pipe div{padding:10px 14px 12px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.pipe div+div{border-left:1px solid var(--line)}
+.pipe s{display:block;height:2px;background:var(--line);position:relative;overflow:hidden}
+.pipe s::after{content:"";position:absolute;inset:0;width:0;background:var(--signal);transition:width .3s}
+.pipe .on s::after{width:60%;animation:run 1s ease-in-out infinite alternate}
+.pipe .done s::after{width:100%;background:var(--fg)}
+.pipe .bad s::after{width:100%;background:var(--warn)}
+.pipe .done .k{color:var(--fg)}
+@keyframes run{from{width:15%}to{width:85%}}
+.time{font:500 11px var(--mono);color:var(--fg)}
+
+/* readout */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-bottom:1px solid var(--line)}
+.kpis div{padding:14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.kpis div+div{border-left:1px solid var(--line)}
+.kpis b{font:400 30px/1 var(--serif);overflow-wrap:anywhere}
+.kpis b small{font:400 13px var(--mono);color:var(--muted);margin-left:4px}
+@media (max-width:480px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpis div:nth-child(3){border-left:0}.kpis div:nth-child(n+3){border-top:1px solid var(--line)}}
+.tabs{display:flex;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs button{flex:1;border:0;background:transparent;height:42px;padding:0 12px;cursor:pointer;font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid transparent;margin-bottom:-1px;white-space:nowrap;display:flex;gap:8px;align-items:center;justify-content:center}
+.tabs button+button{border-left:1px solid var(--line)}
+.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--signal);background:var(--raised)}
+.badge{font:500 10px/1 var(--mono);padding:3px 5px;border-radius:2px;background:var(--warn);color:var(--bg);letter-spacing:.06em}
+.badge.ok{background:var(--ok-soft);color:var(--ok)}
+.pane{padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
+
+.tablebox{overflow:auto;max-height:420px;border:1px solid var(--line)}
+table{border-collapse:collapse;width:100%;font:400 13px/1.3 var(--mono);font-variant-numeric:tabular-nums}
+th,td{padding:8px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left;color:var(--muted)}
+thead th{position:sticky;top:0;background:var(--surface);font-weight:500;font-size:11px;letter-spacing:.06em;color:var(--muted);z-index:1}
+thead th .sw{display:inline-block;width:8px;height:8px;margin-right:7px;vertical-align:0}
+thead th [contenteditable]{outline:none;border-bottom:1px dashed var(--dim);color:var(--fg);text-transform:none;letter-spacing:0;font-size:12.5px}
+tbody tr:hover,tbody tr.hl{background:var(--signal-soft)}
+tbody tr.hl td:first-child{color:var(--signal)}
+td[contenteditable]:focus{outline:1px solid var(--signal);outline-offset:-1px}
+td.est{color:var(--muted)}
+.hint{font-size:12.5px;color:var(--muted);margin:0}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+
+.cards{display:grid;gap:10px}
+.card{border:1px solid var(--line);padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.card h4{margin:0;font:500 13px var(--sans);display:flex;gap:8px;align-items:center}
+.card h4 .sw{width:8px;height:8px}
+.kv{display:grid;grid-template-columns:minmax(0,10em) minmax(0,1fr);gap:6px 14px;font-size:13.5px;margin:0}
+.kv dt{font:500 10.5px/1.9 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.kv dd{margin:0;font-variant-numeric:tabular-nums}
+.check{display:grid;grid-template-columns:22px minmax(0,1fr);gap:12px;padding:12px 14px;border:1px solid var(--line)}
+.check .dot{width:22px;height:22px;display:grid;place-items:center;font:600 12px var(--mono);border:1px solid var(--line2)}
+.check.ok .dot{color:var(--ok);border-color:var(--ok)}
+.check.warn{border-color:var(--warn);background:var(--warn-soft)} .check.warn .dot{color:var(--bg);background:var(--warn);border-color:var(--warn)}
+.check.info .dot{color:var(--fg)}
+.check b{display:block;font-weight:500;margin-bottom:2px}
+.check span{color:var(--muted);font-size:13.5px}
+.fmt{display:flex;gap:6px;flex-wrap:wrap}
+.rctl{display:flex;gap:10px 14px;flex-wrap:wrap;align-items:center}
+.tog,.sel{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.tog input{accent-color:var(--signal);width:15px;height:15px}
+.sel select{background:var(--raised);color:var(--fg);border:1px solid var(--line2);border-radius:7px;height:30px;padding:0 8px;font:13px var(--sans)}
+.rcanvas{width:100%;display:block;border:1px solid var(--line)}
+.fixbtn{margin-top:8px}
+#sel.grab{cursor:grab}#sel.grabbing{cursor:grabbing}
+pre.code{margin:0;background:var(--bg);border:1px solid var(--line);padding:12px;font:400 12px/1.55 var(--mono);overflow:auto;max-height:300px;white-space:pre;color:var(--fg)}
+.err{border:1px solid var(--warn);background:var(--warn-soft);padding:12px 14px;font-size:14px}
+.err b{display:block;margin-bottom:4px;font-weight:500}
+.empty{color:var(--muted);font-size:14px;padding:6px 0}
+
+/* method + proof */
+.below{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid var(--line);border-top:0}
+.below div{padding:16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.below div+div{border-left:1px solid var(--line)}
+.below b{font-weight:500}
+.below p{margin:0;color:var(--muted);font-size:13.5px}
+@media (max-width:820px){.below{grid-template-columns:repeat(2,minmax(0,1fr))}.below div:nth-child(3){border-left:0}.below div:nth-child(n+3){border-top:1px solid var(--line)}}
+.proof{display:flex;gap:28px;flex-wrap:wrap;padding:18px 0;border-bottom:1px solid var(--line)}
+.proof div{display:flex;flex-direction:column;gap:6px}
+.proof b{font:400 34px/1 var(--serif)}
+.foot{display:flex;gap:18px;flex-wrap:wrap;padding-top:16px;font-size:12.5px;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:9px 14px;border-radius:7px;font:500 13px var(--sans);z-index:10}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+
+.console,.below,.drop,.err,.check,.card,.tablebox,pre.code,.rcanvas,.kpis{border-radius:10px}
+.console{overflow:hidden}.below{overflow:hidden;border-top:1px solid var(--line);margin-top:14px}
+.frame canvas#src{border-radius:6px}
+</style>
+</head><body>
+
+<div class="wrap">
+  <header class="hud">
+    <span class="mark">UN<b>/</b>CHART</span>
+    <span class="k hide-s">Chart to data, version 1</span>
+    <span class="sp"></span>
+    <span class="k live" title="Reading and tracing run in this tab. Your image is never uploaded."><i></i>Local only, nothing uploaded</span>
+    <a class="k hide-s" href="https://github.com/MatinNikoo/unchart" target="_blank" rel="noopener">Source</a>
+  </header>
+
+  <section class="hero">
+    <div>
+      <h1>Get the numbers back out of <i>any chart.</i></h1>
+      <p><b>Paste a screenshot and get the numbers back.</b> Unchart reads the axes, traces every line, bar and dot, and tells you when a chart is built to mislead. About a second, right in your browser.</p>
+      <div class="keys"><span><kbd>⌘V</kbd> or <kbd>Ctrl V</kbd> to paste</span><span>Drop an image or PDF</span><span>Drag a box to read part of it</span></div>
+    </div>
+    <div class="object" aria-hidden="true">
+      <div class="melt ink"></div><div class="melt"></div>
+      <span class="k cap">Fig. 0<b>3D render, dithered to one bit</b></span>
+    </div>
+  </section>
+
+  <main class="console">
+    <section class="col" aria-label="Input">
+      <div class="phead"><span class="n">01</span><span class="k">Input</span><span class="sp"></span>
+        <div class="seg" role="group" aria-label="View">
+          <button type="button" id="vBoth" aria-pressed="true">Both</button><button type="button" id="vOrig" aria-pressed="false">Original</button><button type="button" id="vRebuilt" aria-pressed="false">Rebuilt</button>
+        </div>
+      </div>
+      <div class="tb">
+        <button class="btn go" id="open" type="button"><svg viewBox="0 0 16 16"><path d="M8 11V2.5M4.5 6 8 2.5 11.5 6M2.5 10.5v3h11v-3"/></svg>Open image or PDF</button>
+        <input id="file" type="file" accept="image/*,application/pdf" hidden>
+        <span class="k" style="margin-left:4px">Try</span>
+        <button class="chip" type="button" data-ex="ex_line.png" aria-pressed="true"><img src="examples/ex_line.png" alt="">Sales</button>
+        <button class="chip" type="button" data-ex="ex_bars.png" aria-pressed="false"><img src="examples/ex_bars.png" alt="">Store scores</button>
+        <button class="chip" type="button" data-ex="ex_dots.png" aria-pressed="false"><img src="examples/ex_dots.png" alt="">Ad spend</button>
+        <span class="hint" id="pdfnav" hidden></span>
+      </div>
+      <div class="stagebox" id="box">
+        <div class="frame" id="frame">
+          <span class="tag" id="extag">EXAMPLE · MADE UP DATA</span>
+          <canvas id="src"></canvas><canvas id="ov"></canvas><canvas id="sel"></canvas>
+          <div class="scan" id="scan" hidden></div>
+          <div class="tip" id="tip" hidden></div>
+          <button class="btn go cropgo" id="cropgo" type="button" hidden>Read this area</button>
+        </div>
+        <div class="drop" id="drop" hidden><b>Let go to read it</b><span class="k">image or PDF</span></div>
+      </div>
+      <div class="readline" id="readline"><span id="xy">Move over the chart to measure any point</span><span class="sp"></span><span>Drag a point to fix it, or drag empty space to read part of the image</span></div>
+      <div class="pipe" id="pipe" aria-live="polite">
+        <div data-s="read"><span class="k">Read labels</span><s></s></div>
+        <div data-s="axes"><span class="k">Fit axes</span><s></s></div>
+        <div data-s="trace"><span class="k">Trace data</span><s></s></div>
+        <div data-s="check"><span class="k">Check honesty</span><s></s><span class="time" id="time"></span></div>
+      </div>
+    </section>
+
+    <section class="col" aria-label="Output">
+      <div class="phead"><span class="n">02</span><span class="k">Output</span></div>
+      <div class="kpis">
+        <div><span class="k">Chart</span><b id="sType">Line</b></div>
+        <div><span class="k">Series</span><b id="sSeries">2</b></div>
+        <div><span class="k">Points</span><b id="sPoints">20</b></div>
+        <div><span class="k">Y axis</span><b id="sRange">2 to 12</b></div>
+      </div>
+      <div class="tabs" role="tablist">
+        <button role="tab" id="tData" aria-selected="true" aria-controls="pData">Data</button>
+        <button role="tab" id="tIns" aria-selected="false" aria-controls="pIns">Reading</button>
+        <button role="tab" id="tRem" aria-selected="false" aria-controls="pRem">Remake</button>
+        <button role="tab" id="tHon" aria-selected="false" aria-controls="pHon">Honesty <span class="badge ok" id="honBadge">OK</span></button>
+        <button role="tab" id="tExp" aria-selected="false" aria-controls="pExp">Export</button>
+      </div>
+      <div class="pane" id="pData" role="tabpanel">
+        <div id="errbox"></div>
+        <div class="tablebox"><table id="table"></table></div>
+        <div class="acts">
+          <button class="btn go" type="button" id="copySheets"><svg viewBox="0 0 16 16"><rect x="5" y="5" width="8.5" height="8.5"/><path d="M11 5V2.5H2.5V11H5"/></svg>Copy for Sheets or Excel</button>
+          <button class="btn" type="button" id="dlCsv">Download CSV</button>
+        </div>
+        <p class="hint">Fix anything by clicking a number or name here, or by dragging the point on the chart.</p>
+      </div>
+      <div class="pane" id="pIns" role="tabpanel" hidden><div class="cards" id="cards"></div><p class="hint">Worked out from the table, so your edits change it.</p></div>
+      <div class="pane" id="pRem" role="tabpanel" hidden>
+        <div class="rctl">
+          <div class="seg" role="group" aria-label="Chart type"><button type="button" data-rt="line" aria-pressed="true">Line</button><button type="button" data-rt="area" aria-pressed="false">Area</button><button type="button" data-rt="bar" aria-pressed="false">Bars</button></div>
+          <div class="seg" role="group" aria-label="Look"><button type="button" data-rth="light" aria-pressed="true">Clean</button><button type="button" data-rth="dark" aria-pressed="false">Dark</button><button type="button" data-rth="print" aria-pressed="false">Print</button></div>
+        </div>
+        <div class="rctl">
+          <label class="tog"><input type="checkbox" id="rZero" checked> Start the axis at zero</label>
+          <label class="sel">Projection <select id="rTrend"><option value="off">Off</option><option value="linear">Straight line</option><option value="growth">Steady growth</option></select></label>
+        </div>
+        <canvas id="rc" class="rcanvas" aria-label="The chart redrawn from the recovered numbers"></canvas>
+        <p class="hint" id="rNote"></p>
+        <div class="acts"><button class="btn go" type="button" id="rCopy">Copy image</button><button class="btn" type="button" id="rSave">Download PNG</button></div>
+      </div>
+      <div class="pane" id="pHon" role="tabpanel" hidden><div class="cards" id="checks"></div></div>
+      <div class="pane" id="pExp" role="tabpanel" hidden>
+        <div class="fmt" role="group" aria-label="Format">
+          <button class="chip" type="button" data-f="tsv" aria-pressed="true">Sheets</button>
+          <button class="chip" type="button" data-f="csv" aria-pressed="false">CSV</button>
+          <button class="chip" type="button" data-f="pandas" aria-pressed="false">Python</button>
+          <button class="chip" type="button" data-f="r" aria-pressed="false">R</button>
+          <button class="chip" type="button" data-f="md" aria-pressed="false">Markdown</button>
+          <button class="chip" type="button" data-f="json" aria-pressed="false">JSON</button>
+        </div>
+        <pre class="code" id="code"></pre>
+        <div class="acts"><button class="btn go" type="button" id="copyCode">Copy</button></div>
+      </div>
+    </section>
+  </main>
+
+  <section class="below" aria-label="How it works">
+    <div><span class="k" style="color:var(--signal)">01 Read</span><b>Read the labels</b><p>It spots the glyphs itself and reads them in one pass, so tiny tick numbers and gray text still come through.</p></div>
+    <div><span class="k" style="color:var(--signal)">02 Fit</span><b>Fit the axes</b><p>A fit that ignores outliers lines up the tick values, skips misreads, and catches log axes and lost minus signs.</p></div>
+    <div><span class="k" style="color:var(--signal)">03 Trace</span><b>Trace the data</b><p>Each color is a series. Lines snap back to their real data points. Bars and dots get measured.</p></div>
+    <div><span class="k" style="color:var(--signal)">04 Check</span><b>Check the chart</b><p>Bars that skip zero, two y axes, log scales and zoomed axes, with what each does to your read.</p></div>
+  </section>
+
+  <section class="proof" aria-label="Test results">
+    <div><span class="k">Charts tested</span><b>130</b></div>
+    <div><span class="k">Worst error on any chart</span><b>0.9%</b></div>
+    <div><span class="k">Median error</span><b>0.17%</b></div>
+    <div><span class="k">Skipped zero axes caught</span><b>10 of 10</b></div>
+    <div><span class="k">Time per chart</span><b>~1 s</b></div>
+  </section>
+  <footer class="foot"><span>Built by <a href="https://matinnikoo.github.io">Matin Nikoomanzar</a></span><span>Test charts come from matplotlib, Chart.js and compressed screenshots, each with known numbers.</span><span>Example charts use made up data.</span></footer>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="vendor/tesseract.min.js"></script>
+<script src="src/engine.js"></script>
+<script src="src/ocr.js"></script>
+<script src="src/remake.js"></script>
+<script src="examples/precomputed.js"></script>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const abs=p=>new URL(p,location.href).href;
+const PATHS={workerPath:abs('vendor/worker.min.js'),corePath:abs('vendor/core/'),langFile:'vendor/lang/eng.js',workerBlobURL:false,cacheMethod:'none'};
+const src=$('src'),ov=$('ov'),sel=$('sel');
+const S={canvas:null,res:null,crop:null,view:'both',fmt:'tsv',table:null,hl:-1,pdf:null,page:1,fit:null,cross:null};
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt=v=>typeof v==='number'?Unchart.fmt(v):v;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
+
+// ---------- loading ----------
+function toCanvas(img){const c=document.createElement('canvas');c.width=img.naturalWidth||img.width;c.height=img.naturalHeight||img.height;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(img,0,0);return c}
+function loadURL(u){return new Promise((ok,no)=>{const im=new Image();im.onload=()=>ok(toCanvas(im));im.onerror=no;im.src=u})}
+const isPDF=b=>b.type==='application/pdf'||/\.pdf$/i.test(b.name||'');
+async function loadBlob(b){if(isPDF(b))return loadPDF(b);const u=URL.createObjectURL(b);try{return await loadURL(u)}finally{URL.revokeObjectURL(u)}}
+let pdfReady=null;
+function pdfLib(){if(!pdfReady)pdfReady=new Promise((ok,no)=>{const s=document.createElement('script');s.src='vendor/pdf.min.js';s.onload=()=>{pdfjsLib.GlobalWorkerOptions.workerSrc=abs('vendor/pdf.worker.min.js');ok(pdfjsLib)};s.onerror=no;document.head.appendChild(s)});return pdfReady}
+async function loadPDF(b){const lib=await pdfLib();S.pdf=await lib.getDocument({data:await b.arrayBuffer()}).promise;S.page=1;return renderPage()}
+async function renderPage(){
+  const pg=await S.pdf.getPage(S.page),vp=pg.getViewport({scale:2});
+  const c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);
+  await pg.render({canvasContext:g,viewport:vp}).promise;
+  const nav=$('pdfnav');nav.hidden=false;
+  nav.innerHTML=`Page ${S.page} of ${S.pdf.numPages} <button class="chip" type="button" id="pp">Previous</button> <button class="chip" type="button" id="pn">Next</button>`;
+  $('pp').onclick=async()=>{if(S.page>1){S.page--;show(await renderPage(),null);waiting('Drag a box around the chart on this page.')}};
+  $('pn').onclick=async()=>{if(S.page<S.pdf.numPages){S.page++;show(await renderPage(),null);waiting('Drag a box around the chart on this page.')}};
+  return c;
+}
+
+// ---------- stage ----------
+function show(canvas,res){
+  S.canvas=canvas;S.crop=null;S.res=res;S.fit=null;
+  src.width=ov.width=sel.width=canvas.width;src.height=ov.height=sel.height=canvas.height;
+  src.getContext('2d').drawImage(canvas,0,0);
+  sel.getContext('2d').clearRect(0,0,sel.width,sel.height);$('cropgo').hidden=true;
+  if(res)fitAxes();drawOverlay(1);if(res)renderAll();
+}
+function waiting(msg){setSteps({});clearReadout();$('errbox').innerHTML=`<div class="err"><b>${esc(msg)}</b>It reads as soon as you let go.</div>`;$('time').textContent=''}
+function clearReadout(){$('table').innerHTML='';$('cards').innerHTML='';$('checks').innerHTML='';$('code').textContent='';['sType','sSeries','sPoints','sRange'].forEach(i=>$(i).textContent='–');$('honBadge').textContent='–';$('honBadge').className='badge ok'}
+function fitAxes(){const R=S.res;if(!R||!R.ok)return;S.fit={y:Unchart.fitAxis(R.calib.y),x:R.calib.x&&R.calib.x.length>=2?Unchart.fitAxis(R.calib.x):null}}
+
+function drawOverlay(t){
+  const g=ov.getContext('2d');g.clearRect(0,0,ov.width,ov.height);
+  const R=S.res;src.className=S.view==='rebuilt'?'dim':'';
+  if(!R||!R.ok||S.view==='orig')return;
+  const off=S.crop?[S.crop.x,S.crop.y]:[0,0],k=Math.max(1,ov.width/900),rect=R.rect;
+  g.save();g.translate(off[0],off[1]);
+  g.beginPath();g.rect(-off[0],-off[1],rect.left+(rect.right-rect.left+40)*t+off[0],ov.height);g.clip();
+  const sig=css('--signal');
+  g.lineWidth=1.2*k;g.strokeStyle=sig;g.globalAlpha=.85;
+  for(const q of R.calib.y||[]){g.beginPath();g.moveTo(rect.left-3,q.p);g.lineTo(rect.left+9*k,q.p);g.stroke()}
+  for(const q of R.calib.x||[]){g.beginPath();g.moveTo(q.p,rect.bottom+3);g.lineTo(q.p,rect.bottom-9*k);g.stroke()}
+  g.globalAlpha=1;
+  // the crosshair while measuring
+  if(S.cross&&t>=1){g.save();g.setLineDash([4*k,4*k]);g.lineWidth=1*k;g.strokeStyle='rgba(20,20,20,.55)';
+    g.beginPath();g.moveTo(rect.left,S.cross[1]);g.lineTo(rect.right,S.cross[1]);g.moveTo(S.cross[0],rect.top);g.lineTo(S.cross[0],rect.bottom);g.stroke();g.restore()}
+  R.series.forEach(s=>{
+    const P=s.points.filter(p=>p.px!=null&&p.py!=null);
+    g.strokeStyle=sig;g.fillStyle=sig;g.lineWidth=2.4*k;
+    if(s.type==='line'){
+      g.beginPath();P.forEach((p,i)=>i?g.lineTo(p.px,p.py):g.moveTo(p.px,p.py));g.stroke();
+      P.forEach(p=>{g.beginPath();g.rect(p.px-3.4*k,p.py-3.4*k,6.8*k,6.8*k);g.fillStyle='#fff';g.fill();g.stroke()});
+    }else if(s.type==='bar'){
+      P.forEach(p=>{if(p.empty)return;const b=p.box;g.globalAlpha=.18;g.fillRect(b[0],b[1],b[2]-b[0]+1,b[3]-b[1]+1);g.globalAlpha=1;g.strokeRect(b[0],b[1],b[2]-b[0]+1,b[3]-b[1]+1);
+        g.beginPath();g.moveTo(b[0]-5*k,p.py);g.lineTo(b[2]+5*k,p.py);g.lineWidth=3*k;g.stroke();g.lineWidth=2.4*k});
+    }else{
+      const r=Math.max(4,(s.size||4)*.75)*k*.6+3;P.forEach(p=>{g.beginPath();g.arc(p.px,p.py,r,0,7);g.stroke()});
+    }
+  });
+  if(S.hl>=0&&S.table){const row=S.table.rows[S.hl];if(row)for(const p of row.pts){if(!p)continue;g.beginPath();g.arc(p.px,p.py,9*k,0,7);g.lineWidth=2*k;g.strokeStyle='#111';g.stroke()}}
+  g.restore();
+}
+function reveal(){
+  const sc=$('scan'),t0=performance.now(),D=matchMedia('(prefers-reduced-motion: reduce)').matches?1:1000;sc.hidden=false;
+  (function f(){const t=Math.min(1,(performance.now()-t0)/D),e=1-Math.pow(1-t,3);drawOverlay(e);
+    const R=S.res;if(R&&R.ok){const off=S.crop?S.crop.x:0;sc.style.left=Math.min(100,(off+R.rect.left+(R.rect.right-R.rect.left+40)*e)/ov.width*100)+'%'}
+    if(t<1)requestAnimationFrame(f);else sc.hidden=true})();
+}
+
+// ---------- running ----------
+function setSteps(st){document.querySelectorAll('#pipe>div').forEach(el=>{el.className=st[el.dataset.s]||''})}
+let firstRun=true;
+async function run(canvas,crop){
+  $('extag').hidden=true;
+  const c=crop?(()=>{const k=document.createElement('canvas');k.width=crop.w;k.height=crop.h;k.getContext('2d').drawImage(canvas,crop.x,crop.y,crop.w,crop.h,0,0,crop.w,crop.h);return k})():canvas;
+  S.crop=crop||null;S.res=null;S.fit=null;drawOverlay(0);$('errbox').innerHTML='';
+  const t0=performance.now();setSteps({read:'on'});
+  $('time').textContent=firstRun?'Loading reader, first time only':'';
+  const sc=$('scan');sc.hidden=false;const st=performance.now();
+  (function tick(){if(sc.hidden)return;const x=(performance.now()-st)/1300%1;sc.style.left=((crop?crop.x:0)+x*c.width)/S.canvas.width*100+'%';requestAnimationFrame(tick)})();
+  let words;
+  try{words=await UnchartOCR.readWords(c,PATHS)}catch(e){sc.hidden=true;setSteps({read:'bad'});fail('The text reader could not start.',String(e.message||e));return}
+  firstRun=false;sc.hidden=true;setSteps({read:'done',axes:'on'});await new Promise(r=>setTimeout(r,40));
+  let res;try{res=Unchart.extract(c.getContext('2d').getImageData(0,0,c.width,c.height),words)}catch(e){res={ok:false,error:'Something broke while tracing. '+e.message}}
+  const ms=performance.now()-t0;
+  if(!res.ok){setSteps({read:'done',axes:'bad'});fail(res.error,'Drag a tighter box around just the chart, with its axis numbers inside it.');return}
+  S.res=res;fitAxes();setSteps({read:'done',axes:'done',trace:'done',check:'done'});
+  $('time').textContent=`${(ms/1000).toFixed(1)} s`;
+  renderAll();reveal();
+}
+function fail(title,detail){S.res=null;clearReadout();$('errbox').innerHTML=`<div class="err"><b>${esc(title)}</b>${esc(detail||'')}</div>`;$('time').textContent='';drawOverlay(0);select('tData')}
+
+// ---------- readout ----------
+function buildTable(R){
+  const keys=new Map(),series=R.series;let dup=0;
+  series.forEach((s,si)=>s.points.forEach(p=>{const k=typeof p.x==='number'?+p.x.toFixed(6):p.x;
+    if(!keys.has(k))keys.set(k,{x:k,vals:Array(series.length).fill(null),pts:Array(series.length).fill(null),px:p.px});
+    const r=keys.get(k);if(r.vals[si]==null){r.vals[si]=p.y;r.pts[si]=p}else keys.set('dup'+(dup++),{x:k,vals:series.map((_,j)=>j===si?p.y:null),pts:series.map((_,j)=>j===si?p:null),px:p.px})}));
+  const scatter=series.every(s=>s.type==='scatter'),rows=[...keys.values()];
+  rows.sort((a,b)=>scatter?(a.x-b.x):(a.px-b.px));
+  return {cols:series.map(s=>({name:s.name,color:s.color})),rows,xName:scatter||R.axis.xNumeric?'x':'Category'};
+}
+function renderAll(){
+  const R=S.res;if(!R||!R.ok)return;
+  S.table=buildTable(R);const span=Math.abs(R.axis.yRange[1]-R.axis.yRange[0])||1;S.span=span;S.dec=Math.max(0,Math.min(6,2-Math.floor(Math.log10(span))));
+  const types=[...new Set(R.series.map(s=>s.type))];
+  $('sType').textContent=types.map(t=>({line:'Line',bar:'Bars',scatter:'Dots'})[t]).join(' + ');
+  $('sSeries').textContent=R.series.length;
+  $('sPoints').textContent=R.series.reduce((a,s)=>a+s.points.length,0);
+  const lv=(R.calib.y||[]).map(q=>q.v),lo=lv.length?Math.min(...lv):R.axis.yRange[0],hi=lv.length?Math.max(...lv):R.axis.yRange[1];
+  $('sRange').innerHTML=`${esc(fmt(lo))} to ${esc(fmt(hi))}${R.axis.yPct?'<small>%</small>':''}${R.axis.yLog?'<small>log</small>':''}`;
+  renderTable();renderInsights();renderChecks();renderCode();defaultRemake();renderRemake();
+}
+function numStr(v){if(v==null||!isFinite(v))return '';if(Math.abs(v)<(S.span||1)*0.004)v=0;return (+v.toFixed(S.dec)).toString()}
+function renderTable(){
+  const T=S.table;
+  let h=`<thead><tr><th>${esc(T.xName)}</th>${T.cols.map((c,i)=>`<th><span class="sw" style="background:${c.color}"></span><span contenteditable="true" spellcheck="false" data-col="${i}">${esc(c.name)}</span></th>`).join('')}</tr></thead><tbody>`;
+  T.rows.forEach((r,ri)=>{h+=`<tr data-r="${ri}"><td>${esc(typeof r.x==='number'?numStr(r.x):r.x)}</td>${r.vals.map((v,ci)=>`<td contenteditable="true" spellcheck="false" data-r="${ri}" data-c="${ci}"${r.pts[ci]&&r.pts[ci].merged?' class="est" title="Overlapping dots, split by size"':''}>${numStr(v)}</td>`).join('')}</tr>`});
+  $('table').innerHTML=h+'</tbody>';
+}
+$('table').addEventListener('input',e=>{
+  const el=e.target;
+  if(el.dataset.col!=null){const i=+el.dataset.col;S.table.cols[i].name=el.textContent.trim();S.res.series[i].name=S.table.cols[i].name;renderInsights();renderCode();return}
+  if(el.dataset.r!=null){const r=S.table.rows[+el.dataset.r],c=+el.dataset.c,v=parseFloat(el.textContent.replace(/,/g,''));if(!isFinite(v))return;r.vals[c]=v;
+    const p=r.pts[c];if(p){p.y=v;if(S.fit&&S.fit.y){p.py=S.fit.y.toPixel(v);if(p.box)p.box[1]=Math.min(p.py,p.box[3])}}
+    drawOverlay(1);renderInsights();renderCode();renderRemake()}
+});
+$('checks').addEventListener('click',e=>{if(!e.target.closest('[data-fix]'))return;S.rem.type='bar';S.rem.zero=true;S.rem.trend='off';syncRemakeControls();select('tRem');
+  renderRemake();
+  // drop the axis from where the original started down to zero, so you watch the gaps shrink to their real size
+  const lv=(S.res.calib.y||[]).map(q=>q.v),from=lv.length?Math.min(...lv):0,t0=performance.now(),D=matchMedia('(prefers-reduced-motion: reduce)').matches?1:1400;
+  (function f(){const t=Math.min(1,(performance.now()-t0)/D),e2=t<.15?0:1-Math.pow(1-(t-.15)/.85,3),lo=from*(1-e2);
+    UnchartRemake.draw($('rc'),S.table,{type:'bar',theme:S.rem.theme,zero:false,trend:'off',lo});if(t<1)requestAnimationFrame(f);else renderRemake()})();
+});
+$('table').addEventListener('mouseover',e=>{const tr=e.target.closest('tr[data-r]');setHL(tr?+tr.dataset.r:-1,false)});
+$('table').addEventListener('mouseleave',()=>setHL(-1,false));
+function setHL(i,scroll){if(S.hl===i)return;S.hl=i;document.querySelectorAll('#table tr.hl').forEach(t=>t.classList.remove('hl'));
+  if(i>=0){const tr=document.querySelector(`#table tr[data-r="${i}"]`);if(tr){tr.classList.add('hl');if(scroll){const box=tr.closest('.tablebox');const top=tr.offsetTop-box.clientHeight/2;box.scrollTo({top,behavior:'smooth'})}}}drawOverlay(1)}
+function renderInsights(){
+  const cards=Unchart.insights(S.res);
+  const M=moments();
+  $('cards').innerHTML=(M.length?`<div class="card"><h4>Moments</h4><dl class="kv">${M.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></div>`:'')+cards.map(c=>`<div class="card"><h4><span class="sw" style="background:${c.color}"></span>${esc(c.series)}</h4><dl class="kv">${c.items.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></div>`).join('')||'<p class="empty">Not enough points to say much.</p>';
+}
+function renderChecks(){
+  const R=S.res,F=R.flags||[],A=R.axis,hasBars=R.series.some(s=>s.type==='bar'),passes=[];
+  if(hasBars&&!F.some(f=>/zero/.test(f.title)))passes.push(['Bars start at zero','So their heights compare fairly.']);
+  if(!A.yRight)passes.push(['One y axis','Every series is measured on the same scale.']);
+  if(!A.yLog)passes.push(['Linear scale','Equal steps on the axis mean equal amounts.']);
+  const warn=F.filter(f=>f.level==='warn').length;
+  $('honBadge').textContent=warn?`${warn} ISSUE${warn>1?'S':''}`:'OK';$('honBadge').className='badge'+(warn?'':' ok');
+  $('checks').innerHTML=F.map(f=>`<div class="check ${f.level}"><span class="dot">${f.level==='warn'?'!':'i'}</span><div><b>${esc(f.title)}</b><span>${esc(f.text)}</span>${/zero/.test(f.title)?'<div class="fixbtn"><button class="btn go" type="button" data-fix="1">See it drawn honestly</button></div>':''}</div></div>`).join('')+
+    passes.map(([t,d])=>`<div class="check ok"><span class="dot">✓</span><div><b>${t}</b><span>${d}</span></div></div>`).join('');
+}
+function matrix(){const T=S.table;return {head:[T.xName,...T.cols.map(c=>c.name)],rows:T.rows.map(r=>[typeof r.x==='number'?numStr(r.x):r.x,...r.vals.map(numStr)])}}
+function exportAs(f){
+  const M=matrix(),q=s=>/[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;
+  if(f==='tsv')return [M.head,...M.rows].map(r=>r.join('\t')).join('\n');
+  if(f==='csv')return [M.head,...M.rows].map(r=>r.map(q).join(',')).join('\n');
+  if(f==='md')return '| '+M.head.join(' | ')+' |\n|'+M.head.map((_,i)=>i?' ---: |':' --- |').join('')+'\n'+M.rows.map(r=>'| '+r.join(' | ')+' |').join('\n');
+  const cols=M.head.map((h,i)=>({h,v:M.rows.map(r=>r[i])})),isNum=c=>c.v.every(v=>v===''||isFinite(+v));
+  const lit=(c,none)=>isNum(c)?c.v.map(v=>v===''?none:v).join(', '):c.v.map(v=>JSON.stringify(v)).join(', ');
+  if(f==='pandas')return 'import pandas as pd\n\ndf = pd.DataFrame({\n'+cols.map(c=>`    ${JSON.stringify(c.h)}: [${lit(c,'None')}],`).join('\n')+'\n})';
+  if(f==='r')return 'df <- data.frame(\n'+cols.map((c,i)=>`  \`${c.h.replace(/`/g,'')}\` = c(${lit(c,'NA')})`+(i<cols.length-1?',':'')).join('\n')+',\n  check.names = FALSE\n)';
+  if(f==='json')return JSON.stringify(S.res.series.map(s=>({name:s.name,type:s.type,points:s.points.map(p=>({x:typeof p.x==='number'?+p.x.toFixed(6):p.x,y:+(+p.y).toFixed(S.dec)}))})),null,1);
+}
+function renderCode(){$('code').textContent=exportAs(S.fmt)}
+document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{S.fmt=b.dataset.f;document.querySelectorAll('[data-f]').forEach(x=>x.setAttribute('aria-pressed',x===b));renderCode()});
+
+
+// ---------- remake ----------
+S.rem={type:'line',theme:'light',zero:true,trend:'off'};
+function defaultRemake(){const R=S.res;if(!R||!R.ok)return;const t=R.series.every(s=>s.type==='scatter')?'dots':R.series.some(s=>s.type==='bar')?'bar':'line';S.rem.type=t;S.rem.trend='off';S.rem.zero=t==='bar';syncRemakeControls()}
+function syncRemakeControls(){
+  document.querySelectorAll('[data-rt]').forEach(b=>{b.setAttribute('aria-pressed',b.dataset.rt===S.rem.type);b.hidden=S.rem.type==='dots'?b.dataset.rt!=='line':false});
+  document.querySelectorAll('[data-rth]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.rth===S.rem.theme));
+  $('rZero').checked=S.rem.zero;$('rTrend').value=S.rem.trend;
+  const numX=S.table&&S.table.rows.every(r=>typeof r.x==='number');$('rTrend').disabled=!numX||S.rem.type==='bar';
+}
+function renderRemake(){
+  if(!S.table||$('pRem').hidden)return;
+  const cv=$('rc');const out=UnchartRemake.draw(cv,S.table,{type:S.rem.type,theme:S.rem.theme,zero:S.rem.zero,trend:S.rem.trend});
+  const notes=[];const R=S.res,F=R.flags||[];
+  if(F.some(f=>/zero/.test(f.title)))notes.push(S.rem.zero?'The original chart cut off the bottom of its axis. This version starts at zero, so the bars compare fairly.':'This matches the original cut off axis. Tick the box to see it honestly.');
+  (out.projections||[]).forEach((p,i)=>{if(!p)return;const e=p.pts[p.pts.length-1],nm=S.table.cols[i].name;
+    if(p.fit){notes.push(`${nm} rises about ${fmt(p.slope)} for every 1 on x. The straight line explains ${(Math.max(0,p.r2)*100).toFixed(0)}% of the spread, and the band shows where 90% of new points would land.`);return}
+    notes.push(`${nm} heads to about ${fmt(e.y)} by ${fmt(e.x)}, with a 90% band of ${fmt(e.lo)} to ${fmt(e.hi)}. The ${p.kind==='growth'?'growth curve':'straight line'} explains ${(Math.max(0,p.r2)*100).toFixed(0)}% of the past movement.`)});
+  if(out.projections&&out.projections.some(p=>p&&!p.fit))notes.push('A projection only carries the past forward. It cannot see anything about to change.');
+  $('rNote').textContent=notes.join(' ');
+}
+document.querySelectorAll('[data-rt]').forEach(b=>b.onclick=()=>{S.rem.type=b.dataset.rt;if(b.dataset.rt==='bar')S.rem.trend='off';syncRemakeControls();renderRemake()});
+document.querySelectorAll('[data-rth]').forEach(b=>b.onclick=()=>{S.rem.theme=b.dataset.rth;syncRemakeControls();renderRemake()});
+$('rZero').onchange=e=>{S.rem.zero=e.target.checked;renderRemake()};
+$('rTrend').onchange=e=>{S.rem.trend=e.target.value;renderRemake()};
+$('tRem').addEventListener('click',()=>requestAnimationFrame(renderRemake));
+addEventListener('resize',()=>{clearTimeout(renderRemake.t);renderRemake.t=setTimeout(renderRemake,150)});
+$('rCopy').onclick=()=>{$('rc').toBlob(async b=>{try{await navigator.clipboard.write([new ClipboardItem({'image/png':b})]);toast('Image copied. Paste it into slides or a doc.')}catch(e){toast('Copying images is blocked here. Use Download PNG.')}},'image/png')};
+$('rSave').onclick=()=>{const a=document.createElement('a');a.href=$('rc').toDataURL('image/png');a.download='unchart-remake.png';document.body.appendChild(a);a.click();a.remove();toast('Saved unchart-remake.png')};
+
+// ---------- moments: crossings and the biggest moves ----------
+function moments(){
+  const T=S.table;if(!T||!T.rows.every(r=>typeof r.x==='number')||S.res.series.some(s=>s.type!=='line'))return [];
+  const out=[],rows=T.rows,k=T.cols.length;
+  for(let a=0;a<k;a++)for(let b=a+1;b<k;b++)for(let i=1;i<rows.length;i++){
+    const d0=rows[i-1].vals[a]-rows[i-1].vals[b],d1=rows[i].vals[a]-rows[i].vals[b];
+    if(isFinite(d0)&&isFinite(d1)&&d0*d1<0){const up=d1>0?a:b,dn=d1>0?b:a;out.push(['Crossing',`${T.cols[up].name} moved above ${T.cols[dn].name} between ${numStr(rows[i-1].x)} and ${numStr(rows[i].x)}`])}
+  }
+  for(let c=0;c<k;c++){let best=null;for(let i=1;i<rows.length;i++){const v0=rows[i-1].vals[c],v1=rows[i].vals[c];if(!isFinite(v0)||!isFinite(v1))continue;const d=v1-v0;if(!best||Math.abs(d)>Math.abs(best.d))best={d,i,v0}}
+    if(best)out.push(['Biggest move',`${T.cols[c].name} ${best.d>=0?'rose':'fell'} ${fmt(Math.abs(best.d))}${best.v0?` (${(Math.abs(best.d/best.v0)*100).toFixed(0)}%)`:''} from ${numStr(rows[best.i-1].x)} to ${numStr(rows[best.i].x)}`])}
+  return out;
+}
+// ---------- copy and download ----------
+function toast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,1900)}
+async function copy(text,label){
+  try{await navigator.clipboard.writeText(text);toast(label)}
+  catch(e){const pre=$('code');pre.textContent=text;select('tExp');const r=document.createRange();r.selectNodeContents(pre);const s=getSelection();s.removeAllRanges();s.addRange(r);toast('Selected. Press Ctrl C or ⌘C.')}
+}
+$('copySheets').onclick=()=>S.table&&copy(exportAs('tsv'),'Copied. Paste into any sheet.');
+$('copyCode').onclick=()=>S.table&&copy($('code').textContent,'Copied');
+$('dlCsv').onclick=()=>{
+  if(!S.table)return;const blob=new Blob([exportAs('csv')],{type:'text/csv'}),a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download='unchart.csv';document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);toast('Saved unchart.csv');
+};
+
+// ---------- tabs, views, examples ----------
+function select(id){[['tData','pData'],['tIns','pIns'],['tRem','pRem'],['tHon','pHon'],['tExp','pExp']].forEach(([t,p])=>{$(t).setAttribute('aria-selected',t===id);$(p).hidden=t!==id})}
+['tData','tIns','tRem','tHon','tExp'].forEach(t=>$(t).onclick=()=>select(t));
+[['vBoth','both'],['vOrig','orig'],['vRebuilt','rebuilt']].forEach(([id,v])=>$(id).onclick=()=>{S.view=v;['vBoth','vOrig','vRebuilt'].forEach(x=>$(x).setAttribute('aria-pressed',x===id));drawOverlay(1)});
+async function example(f,animate){
+  document.querySelectorAll('[data-ex]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.ex===f));
+  $('pdfnav').hidden=true;S.pdf=null;$('extag').hidden=false;$('errbox').innerHTML='';
+  const c=await loadURL('examples/'+f),R=JSON.parse(JSON.stringify(window.UNCHART_EXAMPLES[f]));
+  show(c,R);setSteps({read:'done',axes:'done',trace:'done',check:'done'});$('time').textContent=`${(R.ms/1000).toFixed(1)} s`;
+  if(f==='ex_bars.png'&&animate)select('tHon');else if(animate)select('tData');
+  if(animate)reveal();
+}
+document.querySelectorAll('[data-ex]').forEach(b=>b.onclick=()=>example(b.dataset.ex,true));
+
+// ---------- input ----------
+async function take(blob){
+  document.querySelectorAll('[data-ex]').forEach(x=>x.setAttribute('aria-pressed','false'));$('extag').hidden=true;
+  if(!isPDF(blob)){$('pdfnav').hidden=true;S.pdf=null}
+  let c;try{c=await loadBlob(blob)}catch(e){fail('That file could not be opened.','Use a PNG, JPG, WebP or PDF.');return}
+  if(c.width>2400){const k=2400/c.width,d=document.createElement('canvas');d.width=2400;d.height=Math.round(c.height*k);d.getContext('2d').drawImage(c,0,0,d.width,d.height);c=d}
+  $('box').scrollIntoView({behavior:'smooth',block:'nearest'});
+  if(S.pdf){show(c,null);waiting('Drag a box around the chart on this page.');return}
+  show(c,null);run(c,null);
+}
+$('open').onclick=()=>$('file').click();
+$('file').onchange=e=>{const f=e.target.files[0];if(f)take(f);e.target.value=''};
+document.addEventListener('paste',e=>{const it=[...((e.clipboardData||{}).items||[])].find(i=>i.type.startsWith('image/'));if(it){e.preventDefault();take(it.getAsFile())}});
+let dragN=0;
+document.addEventListener('dragenter',e=>{if([...e.dataTransfer.types].includes('Files')){dragN++;$('drop').hidden=false}});
+document.addEventListener('dragleave',()=>{if(--dragN<=0){dragN=0;$('drop').hidden=true}});
+document.addEventListener('dragover',e=>e.preventDefault());
+document.addEventListener('drop',e=>{e.preventDefault();dragN=0;$('drop').hidden=true;const f=e.dataTransfer.files[0];if(f)take(f)});
+
+// ---------- drag to crop, hover to measure ----------
+let drag=null;
+const pos=e=>{const r=sel.getBoundingClientRect();return [(e.clientX-r.left)/r.width*sel.width,(e.clientY-r.top)/r.height*sel.height]};
+function clearSel(){sel.getContext('2d').clearRect(0,0,sel.width,sel.height);$('cropgo').hidden=true}
+// grab a point to move it, or drag on empty space to pick an area
+function nearPoint(e){const T=S.table,R=S.res;if(!T||!R||!R.ok||S.view==='orig'||!S.fit||!S.fit.y)return null;const [mx,my]=pos(e),off=S.crop?[S.crop.x,S.crop.y]:[0,0];let best=null,bd=1e9;
+  T.rows.forEach((r,ri)=>r.pts.forEach((p,c)=>{if(!p||p.empty)return;const d=Math.hypot(p.px+off[0]-mx,p.py+off[1]-my);if(d<bd){bd=d;best={ri,c,p}}}));return bd<=Math.max(10,sel.width/90)?best:null}
+let pdrag=null;
+sel.addEventListener('pointerdown',e=>{if(!S.canvas)return;const np=nearPoint(e);
+  if(np){pdrag=np;sel.setPointerCapture(e.pointerId);sel.className='grabbing';$('tip').hidden=true;return}
+  drag={a:pos(e),b:pos(e),moved:false};sel.setPointerCapture(e.pointerId);$('cropgo').hidden=true});
+sel.addEventListener('pointermove',e=>{
+  if(!pdrag){sel.className=nearPoint(e)?'grab':'';return}
+  const off=S.crop?S.crop.y:0,py=pos(e)[1]-off,v=S.fit.y.toValue(py),r=S.table.rows[pdrag.ri],p=pdrag.p;
+  p.py=py;p.y=v;r.vals[pdrag.c]=v;if(p.box)p.box[1]=Math.min(py,p.box[3]);
+  const td=document.querySelector(`#table td[data-r="${pdrag.ri}"][data-c="${pdrag.c}"]`);if(td)td.textContent=numStr(v);
+  $('xy').innerHTML=`<span class="xy">${esc(S.table.cols[pdrag.c].name)} at ${esc(typeof r.x==='number'?numStr(r.x):r.x)} is now ${esc(numStr(v))}</span>`;
+  setHL(pdrag.ri,true);drawOverlay(1);e.stopImmediatePropagation();
+});
+sel.addEventListener('pointerup',e=>{if(!pdrag)return;pdrag=null;sel.className='grab';renderInsights();renderCode();renderRemake();toast('Point moved. The table, reading and remake updated.');e.stopImmediatePropagation()});
+sel.addEventListener('pointermove',e=>{
+  if(drag){drag.b=pos(e);const [x0,y0]=drag.a,[x1,y1]=drag.b;if(Math.hypot(x1-x0,y1-y0)>8)drag.moved=true;if(!drag.moved)return;
+    const g=sel.getContext('2d');g.clearRect(0,0,sel.width,sel.height);g.fillStyle='rgba(10,10,11,.55)';g.fillRect(0,0,sel.width,sel.height);
+    g.clearRect(Math.min(x0,x1),Math.min(y0,y1),Math.abs(x1-x0),Math.abs(y1-y0));g.strokeStyle=css('--signal');g.lineWidth=Math.max(1.5,sel.width/600);g.strokeRect(Math.min(x0,x1),Math.min(y0,y1),Math.abs(x1-x0),Math.abs(y1-y0));return}
+  hover(e);
+});
+sel.addEventListener('pointerup',()=>{
+  if(!drag)return;const {a:[x0,y0],b:[x1,y1],moved}=drag;drag=null;if(!moved)return;
+  const w=Math.abs(x1-x0),h=Math.abs(y1-y0);if(w<40||h<40){clearSel();return}
+  S.pending={x:Math.round(Math.min(x0,x1)),y:Math.round(Math.min(y0,y1)),w:Math.round(w),h:Math.round(h)};
+  const b=$('cropgo');b.hidden=false;b.style.left=((S.pending.x+w/2)/sel.width*100)+'%';b.style.top=((S.pending.y+h)/sel.height*100)+'%';
+});
+sel.addEventListener('pointerleave',()=>{$('tip').hidden=true;S.cross=null;if(!drag){setHL(-1,false);drawOverlay(1)}$('xy').textContent='Move over the chart to measure any point'});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){clearSel();S.pending=null}});
+$('cropgo').onclick=()=>{clearSel();run(S.canvas,S.pending)};
+function hover(e){
+  const T=S.table,R=S.res;if(!T||!R||!R.ok)return;const [mx,my]=pos(e),off=S.crop?[S.crop.x,S.crop.y]:[0,0];
+  const lx=mx-off[0],ly=my-off[1],rc=R.rect;
+  // live measurement under the cursor
+  if(lx>=rc.left&&lx<=rc.right&&ly>=rc.top&&ly<=rc.bottom&&S.fit&&S.fit.y){
+    S.cross=[lx,ly];const yv=S.fit.y.toValue(ly),xv=S.fit.x?S.fit.x.toValue(lx):null;
+    $('xy').innerHTML=`<span class="xy">${xv!=null?'x '+esc(fmt(xv))+'  ':''}y ${esc(fmt(yv))}</span>`;
+  }else S.cross=null;
+  let best=-1,bd=1e9,bp=null,bc=0;
+  T.rows.forEach((r,i)=>r.pts.forEach((p,c)=>{if(!p)return;const d=Math.hypot(p.px+off[0]-mx,p.py+off[1]-my);if(d<bd){bd=d;best=i;bp=p;bc=c}}));
+  const tip=$('tip');
+  if(best<0||bd>Math.max(14,sel.width/40)){tip.hidden=true;S.hl=-1;document.querySelectorAll('#table tr.hl').forEach(t=>t.classList.remove('hl'));drawOverlay(1);return}
+  tip.hidden=false;tip.style.left=((bp.px+off[0])/sel.width*100)+'%';tip.style.top=((bp.py+off[1])/sel.height*100)+'%';
+  const r=T.rows[best];tip.textContent=`${T.cols[bc].name}  ${typeof r.x==='number'?numStr(r.x):r.x}  →  ${numStr(r.vals[bc])}`;
+  setHL(best,true);drawOverlay(1);
+}
+example('ex_line.png',false);
+})();
+</script>
+
+<script>
+// carry the CSS written in the homepage console over to this page, and keep it in sync across open tabs
+(function(){var K='mn-live-css',st=document.createElement('style'),chip=document.createElement('div');st.id='live-css';
+  function get(){try{return localStorage.getItem(K)||''}catch(e){return ''}}
+  function sync(){var t=get();st.textContent=t;chip.hidden=!t.trim()}
+  chip.className='live-chip';chip.hidden=true;chip.innerHTML='<span>Your CSS from the homepage is on</span><button type="button">Reset</button>';
+  chip.querySelector('button').addEventListener('click',function(){try{localStorage.removeItem(K)}catch(e){}sync()});
+  function mount(){document.body.appendChild(st);document.body.appendChild(chip);sync()}
+  if(document.body)mount();else document.addEventListener('DOMContentLoaded',mount);
+  addEventListener('storage',function(e){if(e.key===K)sync()});
+})();
+</script>
+<style>
+.live-chip{position:fixed;left:1rem;bottom:calc(1rem + env(safe-area-inset-bottom,0px));z-index:50;display:flex;gap:.8rem;align-items:center;padding:.55rem .7rem;border:1px solid currentColor;border-radius:8px;background:var(--bg,#ECE9E2);color:var(--ink,#121212);font:500 .62rem/1 "Geist Mono",ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase}
+.live-chip button{font:inherit;letter-spacing:inherit;text-transform:inherit;background:none;border:0;padding:0;color:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.live-chip[hidden]{display:none}
+</style>
+</body></html>

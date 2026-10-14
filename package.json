@@ -1,0 +1,12 @@
+{
+  "name": "unchart",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Paste a picture of a chart, get the numbers back. Runs in the browser.",
+  "scripts": {
+    "serve": "python3 -m http.server 8790",
+    "bench": "node bench/run.js && python3 bench/score.py results_charts.json"
+  },
+  "devDependencies": { "playwright": "^1.47.0", "tesseract.js": "5.1.1", "@tesseract.js-data/eng": "1.0.0", "chart.js": "4.4.4" },
+  "license": "MIT"
+}
