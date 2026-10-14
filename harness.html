@@ -1,6 +1,6 @@
 <!doctype html><html><head><meta charset="utf-8">
-<script src="../vendor/tesseract.min.js"></script>
-<script src="../src/engine.js"></script><script src="../src/ocr.js"></script></head><body>
+<script src="vendor/tesseract.min.js"></script>
+<script src="src/engine.js"></script><script src="src/ocr.js"></script></head><body>
 <script>
 const PATHS={workerPath:'/node_modules/tesseract.js/dist/worker.min.js',corePath:'/node_modules/tesseract.js-core/',langPath:'/node_modules/@tesseract.js-data/eng/4.0.0_best_int'};
 async function load(src){const im=new Image();im.src=src;await im.decode();const c=document.createElement('canvas');c.width=im.naturalWidth;c.height=im.naturalHeight;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(im,0,0);return c}

@@ -31,7 +31,7 @@ To rerun the benchmark
 ```bash
 npm install && npx playwright install chromium
 npm run serve
-node bench/run.js && python3 bench/score.py results_charts.json
+node run.js && python3 score.py results_charts.json
 ```
 
 ## Limits
