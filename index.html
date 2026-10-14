@@ -650,12 +650,16 @@ example('ex_line.png',false);
 // carry the CSS written in the homepage console over to this page, and keep it in sync across open tabs
 (function(){var K='mn-live-css',st=document.createElement('style'),chip=document.createElement('div');st.id='live-css';
   function get(){try{return localStorage.getItem(K)||''}catch(e){return ''}}
-  function sync(){var t=get();st.textContent=t;chip.hidden=!t.trim()}
+  // the homepage CSS was written for the homepage, so map its pieces onto this page:
+  // color variables win over this page's theme, and the contact headline becomes this page's headline
+  function adapt(t){return t.replace(/\.contact\s+h2\s+span/g,'h1 em, h1 i').replace(/\.contact\s+h2/g,'h1')
+    .replace(/\{([^{}]*)\}/g,function(m,b){return '{'+b.replace(/([\w-]+\s*:\s*[^;!{}]+?)\s*(;|$)/g,'$1 !important$2')+'}'})}
+  function sync(){var t=get();st.textContent=adapt(t);chip.hidden=!t.trim()}
   chip.className='live-chip';chip.hidden=true;chip.innerHTML='<span>Your CSS from the homepage is on</span><button type="button">Reset</button>';
   chip.querySelector('button').addEventListener('click',function(){try{localStorage.removeItem(K)}catch(e){}sync()});
   function mount(){document.body.appendChild(st);document.body.appendChild(chip);sync()}
   if(document.body)mount();else document.addEventListener('DOMContentLoaded',mount);
-  addEventListener('storage',function(e){if(e.key===K)sync()});
+  addEventListener('storage',function(e){if(e.key===K)sync()});addEventListener('pageshow',sync);
 })();
 </script>
 <style>
