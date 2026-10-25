@@ -1,0 +1,22 @@
+{
+ "held_out_charts": 618,
+ "by_set": {
+  "synthetic_test_v3": 318,
+  "families_test_v3": 112,
+  "owid_test": 130,
+  "fred": 58
+ },
+ "read_right_pct": [
+  40.0,
+  69.8
+ ],
+ "refused_pct": [
+  39.3,
+  80.8
+ ],
+ "silent_wrong_pct": [
+  1.7,
+  7.5
+ ],
+ "median_seconds": 3.24
+}

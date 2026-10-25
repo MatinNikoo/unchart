@@ -1,0 +1,19 @@
+{
+ "charts3": {
+  "skips_zero": 10,
+  "skips_zero_flagged": 10,
+  "starts_at_zero": 10,
+  "starts_at_zero_flagged": 0,
+  "engine": "v4 default"
+ },
+ "synthetic_test_v2": {
+  "bar_charts_that_start_at_zero": 146,
+  "flagged_anyway": 6,
+  "skip_zero_charts": 0
+ },
+ "synthetic_test_v3": {
+  "bar_charts_that_start_at_zero": 88,
+  "flagged_anyway": 2,
+  "skip_zero_charts": 0
+ }
+}

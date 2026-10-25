@@ -1,0 +1,6 @@
+syn                   base3    cubic_pp70    cubic_pp80    cubic_pp90 cubic_pp80w97lanczos_pp80w97   bin_pp80w97  cubic_auto90  cubic_tess90  (read right/accepted right %)
+  ALL            74.1/ 40.9    76.5/ 43.3    76.8/ 43.6    76.5/ 43.6    77.1/ 43.9    76.5/ 43.9    75.0/ 43.3    76.2/ 43.3    75.6/ 43.0 n=328
+fam                   base3    cubic_pp70    cubic_pp80    cubic_pp90 cubic_pp80w97lanczos_pp80w97   bin_pp80w97  cubic_auto90  cubic_tess90  (read right/accepted right %)
+  ALL            55.4/ 23.2    57.1/ 24.1    57.1/ 24.1    57.1/ 24.1    57.1/ 26.8    57.1/ 26.8    53.6/ 24.1    57.1/ 24.1    57.1/ 24.1 n=112
+owid                  base3    cubic_pp70    cubic_pp80    cubic_pp90 cubic_pp80w97lanczos_pp80w97   bin_pp80w97  cubic_auto90  cubic_tess90  (read right/accepted right %)
+  ALL            42.5/ 15.0    42.5/ 12.5    42.5/ 12.5    42.5/ 12.5    42.5/ 12.5    42.5/ 12.5    42.5/ 12.5    42.5/ 12.5    42.5/ 12.5 n=40

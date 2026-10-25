@@ -1,0 +1,3721 @@
+{
+ "note": "Engine v3 on the dev splits (node replay of the Chromium OCR cache with PP-OCR on), same causes as failure_breakdown.json.",
+ "sets": {
+  "synthetic-dev": {
+   "n": 328,
+   "causes": {
+    "ok": 166,
+    "refused_ok": 86,
+    "marks": 49,
+    "type": 14,
+    "x_labels": 6,
+    "no_axis": 6,
+    "axis": 1
+   },
+   "by_family": {
+    "area": {
+     "refused_ok": 10,
+     "ok": 7,
+     "x_labels": 2,
+     "no_axis": 1,
+     "marks": 1,
+     "type": 1
+    },
+    "bar": {
+     "ok": 20,
+     "refused_ok": 4,
+     "marks": 1,
+     "type": 1
+    },
+    "bar_line": {
+     "refused_ok": 7,
+     "type": 3,
+     "ok": 7,
+     "marks": 5
+    },
+    "donut": {
+     "refused_ok": 4,
+     "ok": 16,
+     "marks": 3
+    },
+    "grouped_bar": {
+     "refused_ok": 3,
+     "ok": 21,
+     "type": 2
+    },
+    "hbar": {
+     "marks": 2,
+     "ok": 16,
+     "axis": 1,
+     "refused_ok": 1,
+     "no_axis": 2,
+     "type": 1
+    },
+    "histogram": {
+     "refused_ok": 4,
+     "ok": 14,
+     "type": 3,
+     "marks": 3
+    },
+    "line": {
+     "ok": 6,
+     "marks": 6,
+     "x_labels": 1,
+     "refused_ok": 13
+    },
+    "pie": {
+     "refused_ok": 9,
+     "ok": 10,
+     "marks": 4
+    },
+    "scatter": {
+     "marks": 6,
+     "refused_ok": 8,
+     "ok": 10,
+     "no_axis": 1
+    },
+    "stacked_area": {
+     "refused_ok": 6,
+     "ok": 3,
+     "marks": 8,
+     "type": 1,
+     "x_labels": 1,
+     "no_axis": 2
+    },
+    "stacked_bar": {
+     "ok": 15,
+     "marks": 5,
+     "refused_ok": 3
+    },
+    "stacked_hbar": {
+     "ok": 14,
+     "refused_ok": 4,
+     "marks": 3,
+     "type": 1
+    },
+    "step": {
+     "type": 1,
+     "refused_ok": 10,
+     "ok": 7,
+     "x_labels": 2,
+     "marks": 2
+    }
+   },
+   "charts": [
+    {
+     "file": "d0000.jpg",
+     "family": "bar",
+     "degradation": "scan",
+     "err": 0.0016,
+     "cause": "ok"
+    },
+    {
+     "file": "d0002.png",
+     "family": "grouped_bar",
+     "degradation": "rotate",
+     "err": 0.0091,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0003.png",
+     "family": "stacked_bar",
+     "degradation": "blur",
+     "err": 0.0011,
+     "cause": "ok"
+    },
+    {
+     "file": "d0004.png",
+     "family": "stacked_hbar",
+     "degradation": "down",
+     "err": 0.0049,
+     "cause": "ok"
+    },
+    {
+     "file": "d0005.png",
+     "family": "line",
+     "degradation": "rotate",
+     "err": 0.0066,
+     "cause": "ok"
+    },
+    {
+     "file": "d0006.jpg",
+     "family": "step",
+     "degradation": "scan",
+     "err": 0.4221,
+     "pred": "line",
+     "cause": "type"
+    },
+    {
+     "file": "d0007.png",
+     "family": "area",
+     "degradation": "clean",
+     "err": 0.0072,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0008.png",
+     "family": "stacked_area",
+     "degradation": "rotate",
+     "err": 0.0052,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0009.png",
+     "family": "scatter",
+     "degradation": "down",
+     "err": 0.0073,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "d0010.png",
+     "family": "pie",
+     "degradation": "clean",
+     "err": 0.0009,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0011.png",
+     "family": "donut",
+     "degradation": "clean",
+     "err": 0.0004,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0012.png",
+     "family": "histogram",
+     "degradation": "clean",
+     "err": 0.001,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0013.png",
+     "family": "bar_line",
+     "degradation": "clean",
+     "err": 0.0007,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0014.png",
+     "family": "bar",
+     "degradation": "blur",
+     "err": 0.0066,
+     "cause": "ok"
+    },
+    {
+     "file": "d0015.jpg",
+     "family": "hbar",
+     "degradation": "jpeg",
+     "err": 0.4004,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "d0016.png",
+     "family": "grouped_bar",
+     "degradation": "clean",
+     "err": 0.0014,
+     "cause": "ok"
+    },
+    {
+     "file": "d0017.png",
+     "family": "stacked_bar",
+     "degradation": "blur",
+     "err": 0.0288,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "d0018.png",
+     "family": "stacked_hbar",
+     "degradation": "clean",
+     "err": 0.001,
+     "cause": "ok"
+    },
+    {
+     "file": "d0019.png",
+     "family": "line",
+     "degradation": "rotate",
+     "err": 0.2767,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "d0020.png",
+     "family": "step",
+     "degradation": "noise",
+     "err": 0.0011,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0021.png",
+     "family": "area",
+     "degradation": "down",
+     "err": 0.0028,
+     "cause": "ok"
+    },
+    {
+     "file": "d0022.png",
+     "family": "stacked_area",
+     "degradation": "down",
+     "err": 0.0014,
+     "cause": "ok"
+    },
+    {
+     "file": "d0023.png",
+     "family": "scatter",
+     "degradation": "clean",
+     "err": 0.001,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0024.png",
+     "family": "pie",
+     "degradation": "clean",
+     "err": 0.0009,
+     "cause": "ok"
+    },
+    {
+     "file": "d0025.png",
+     "family": "donut",
+     "degradation": "rotate",
+     "err": 0.0004,
+     "cause": "ok"
+    },
+    {
+     "file": "d0026.png",
+     "family": "histogram",
+     "degradation": "clean",
+     "err": 0.0007,
+     "cause": "ok"
+    },
+    {
+     "file": "d0027.png",
+     "family": "bar_line",
+     "degradation": "down",
+     "err": 0.5887,
+     "pred": "waterfall",
+     "cause": "type"
+    },
+    {
+     "file": "d0028.png",
+     "family": "bar",
+     "degradation": "blur",
+     "err": 0.0009,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0029.jpg",
+     "family": "hbar",
+     "degradation": "jpeg",
+     "err": 0.0011,
+     "cause": "ok"
+    },
+    {
+     "file": "d0030.jpg",
+     "family": "grouped_bar",
+     "degradation": "jpeg",
+     "err": 0.0035,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0031.png",
+     "family": "stacked_bar",
+     "degradation": "clean",
+     "err": 0.0012,
+     "cause": "ok"
+    },
+    {
+     "file": "d0032.png",
+     "family": "stacked_hbar",
+     "degradation": "clean",
+     "err": 0.0139,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0033.png",
+     "family": "line",
+     "degradation": "noise",
+     "err": 0.0037,
+     "cause": "ok"
+    },
+    {
+     "file": "d0034.png",
+     "family": "step",
+     "degradation": "down",
+     "err": 0.0019,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0035.png",
+     "family": "area",
+     "degradation": "blur",
+     "err": 0.0098,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0036.jpg",
+     "family": "stacked_area",
+     "degradation": "jpeg",
+     "err": 0.0145,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0037.png",
+     "family": "scatter",
+     "degradation": "clean",
+     "err": 0.001,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0038.png",
+     "family": "pie",
+     "degradation": "clean",
+     "err": 0.001,
+     "cause": "ok"
+    },
+    {
+     "file": "d0039.png",
+     "family": "donut",
+     "degradation": "rotate",
+     "err": 0.001,
+     "cause": "ok"
+    },
+    {
+     "file": "d0040.jpg",
+     "family": "histogram",
+     "degradation": "scan",
+     "err": 0.7549,
+     "pred": "area",
+     "cause": "type"
+    },
+    {
+     "file": "d0041.png",
+     "family": "bar_line",
+     "degradation": "clean",
+     "err": 0.0039,
+     "cause": "ok"
+    },
+    {
+     "file": "d0042.jpg",
+     "family": "bar",
+     "degradation": "jpeg",
+     "err": 0.0031,
+     "cause": "ok"
+    },
+    {
+     "file": "d0043.png",
+     "family": "hbar",
+     "degradation": "noise",
+     "err": 0.0399,
+     "cause": "axis"
+    },
+    {
+     "file": "d0044.jpg",
+     "family": "grouped_bar",
+     "degradation": "jpeg",
+     "err": 0.0011,
+     "cause": "ok"
+    },
+    {
+     "file": "d0045.png",
+     "family": "stacked_bar",
+     "degradation": "blur",
+     "err": 0.0041,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0047.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.1421,
+     "cause": "x_labels"
+    },
+    {
+     "file": "d0048.png",
+     "family": "step",
+     "degradation": "clean",
+     "err": 0.0009,
+     "cause": "ok"
+    },
+    {
+     "file": "d0049.png",
+     "family": "area",
+     "degradation": "clean",
+     "err": 0.0174,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0051.png",
+     "family": "scatter",
+     "degradation": "clean",
+     "err": 0.0095,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0052.png",
+     "family": "pie",
+     "degradation": "rotate",
+     "err": 0.0009,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0053.png",
+     "family": "donut",
+     "degradation": "rotate",
+     "err": 0.0007,
+     "cause": "ok"
+    },
+    {
+     "file": "d0054.png",
+     "family": "histogram",
+     "degradation": "blur",
+     "err": 0.2912,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "d0055.jpg",
+     "family": "bar_line",
+     "degradation": "scan",
+     "err": 0.4622,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "d0056.jpg",
+     "family": "bar",
+     "degradation": "scan",
+     "err": 0.0005,
+     "cause": "ok"
+    },
+    {
+     "file": "d0057.jpg",
+     "family": "hbar",
+     "degradation": "scan",
+     "err": 0.0006,
+     "cause": "ok"
+    },
+    {
+     "file": "d0058.png",
+     "family": "grouped_bar",
+     "degradation": "rotate",
+     "err": 0.002,
+     "cause": "ok"
+    },
+    {
+     "file": "d0059.jpg",
+     "family": "stacked_bar",
+     "degradation": "jpeg",
+     "err": 0.0248,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "d0060.png",
+     "family": "stacked_hbar",
+     "degradation": "clean",
+     "err": 0.0015,
+     "cause": "ok"
+    },
+    {
+     "file": "d0061.jpg",
+     "family": "line",
+     "degradation": "scan",
+     "err": 0.0037,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0062.png",
+     "family": "step",
+     "degradation": "blur",
+     "err": 0.0006,
+     "cause": "ok"
+    },
+    {
+     "file": "d0063.jpg",
+     "family": "area",
+     "degradation": "jpeg",
+     "err": 0.0125,
+     "cause": "ok"
+    },
+    {
+     "file": "d0064.jpg",
+     "family": "stacked_area",
+     "degradation": "scan",
+     "err": 0.0121,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0066.png",
+     "family": "pie",
+     "degradation": "rotate",
+     "err": 0.0011,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0067.png",
+     "family": "donut",
+     "degradation": "down",
+     "err": 0.0011,
+     "cause": "ok"
+    },
+    {
+     "file": "d0068.jpg",
+     "family": "histogram",
+     "degradation": "scan",
+     "err": 0.9046,
+     "pred": "area",
+     "cause": "type"
+    },
+    {
+     "file": "d0069.png",
+     "family": "bar_line",
+     "degradation": "down",
+     "err": 0.0672,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "d0070.png",
+     "family": "bar",
+     "degradation": "noise",
+     "err": 0.0032,
+     "cause": "ok"
+    },
+    {
+     "file": "d0071.png",
+     "family": "hbar",
+     "degradation": "down",
+     "err": 0.0025,
+     "cause": "ok"
+    },
+    {
+     "file": "d0072.png",
+     "family": "grouped_bar",
+     "degradation": "clean",
+     "err": 0.0036,
+     "cause": "ok"
+    },
+    {
+     "file": "d0073.png",
+     "family": "line",
+     "degradation": "rotate",
+     "err": 0.0336,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "d0074.jpg",
+     "family": "scatter",
+     "degradation": "jpeg",
+     "err": 0.055,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "d0075.png",
+     "family": "histogram",
+     "degradation": "down",
+     "err": 0.0005,
+     "cause": "ok"
+    },
+    {
+     "file": "d0076.png",
+     "family": "bar",
+     "degradation": "clean",
+     "err": 0.0036,
+     "cause": "ok"
+    },
+    {
+     "file": "d0078.png",
+     "family": "grouped_bar",
+     "degradation": "noise",
+     "err": 0.0013,
+     "cause": "ok"
+    },
+    {
+     "file": "d0079.jpg",
+     "family": "line",
+     "degradation": "scan",
+     "err": 0.0129,
+     "cause": "ok"
+    },
+    {
+     "file": "d0080.png",
+     "family": "scatter",
+     "degradation": "down",
+     "err": 0.0013,
+     "cause": "ok"
+    },
+    {
+     "file": "d0081.jpg",
+     "family": "histogram",
+     "degradation": "scan",
+     "err": 0.0021,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0082.jpg",
+     "family": "bar",
+     "degradation": "jpeg",
+     "err": 0.0024,
+     "cause": "ok"
+    },
+    {
+     "file": "d0083.png",
+     "family": "hbar",
+     "degradation": "down",
+     "err": 0.0021,
+     "cause": "ok"
+    },
+    {
+     "file": "d0084.jpg",
+     "family": "grouped_bar",
+     "degradation": "scan",
+     "err": 0.8169,
+     "pred": "area",
+     "cause": "type"
+    },
+    {
+     "file": "d0085.png",
+     "family": "line",
+     "degradation": "down",
+     "err": 0.007,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0086.png",
+     "family": "scatter",
+     "degradation": "clean",
+     "err": 0.0017,
+     "cause": "ok"
+    },
+    {
+     "file": "d0087.png",
+     "family": "histogram",
+     "degradation": "clean",
+     "err": 0.001,
+     "cause": "ok"
+    },
+    {
+     "file": "d0088.png",
+     "family": "bar",
+     "degradation": "clean",
+     "err": 0.002,
+     "cause": "ok"
+    },
+    {
+     "file": "d0090.png",
+     "family": "grouped_bar",
+     "degradation": "clean",
+     "err": 0.0011,
+     "cause": "ok"
+    },
+    {
+     "file": "d0091.png",
+     "family": "stacked_bar",
+     "degradation": "noise",
+     "err": 0.0013,
+     "cause": "ok"
+    },
+    {
+     "file": "d0092.jpg",
+     "family": "stacked_hbar",
+     "degradation": "scan",
+     "err": 0.0017,
+     "cause": "ok"
+    },
+    {
+     "file": "d0093.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.0034,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0094.png",
+     "family": "step",
+     "degradation": "down",
+     "err": 0.0058,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0095.jpg",
+     "family": "area",
+     "degradation": "scan",
+     "err": 0.0085,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0096.png",
+     "family": "stacked_area",
+     "degradation": "noise",
+     "err": 0.3453,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "d0097.jpg",
+     "family": "scatter",
+     "degradation": "scan",
+     "err": 0.0044,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0098.png",
+     "family": "pie",
+     "degradation": "clean",
+     "err": 0.0002,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0099.jpg",
+     "family": "donut",
+     "degradation": "jpeg",
+     "err": 0.001,
+     "cause": "ok"
+    },
+    {
+     "file": "d0100.png",
+     "family": "histogram",
+     "degradation": "noise",
+     "err": 0.0005,
+     "cause": "ok"
+    },
+    {
+     "file": "d0101.png",
+     "family": "bar_line",
+     "degradation": "clean",
+     "err": 0.0004,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0102.jpg",
+     "family": "bar",
+     "degradation": "scan",
+     "err": 0.0792,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "d0103.jpg",
+     "family": "hbar",
+     "degradation": "jpeg",
+     "err": 0.0018,
+     "cause": "ok"
+    },
+    {
+     "file": "d0104.png",
+     "family": "grouped_bar",
+     "degradation": "clean",
+     "err": 0.0095,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0105.png",
+     "family": "stacked_bar",
+     "degradation": "down",
+     "err": 0.0031,
+     "cause": "ok"
+    },
+    {
+     "file": "d0106.png",
+     "family": "stacked_hbar",
+     "degradation": "down",
+     "err": 0.0024,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0107.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.0041,
+     "cause": "ok"
+    },
+    {
+     "file": "d0108.png",
+     "family": "step",
+     "degradation": "rotate",
+     "err": 0.0063,
+     "cause": "ok"
+    },
+    {
+     "file": "d0109.jpg",
+     "family": "area",
+     "degradation": "scan",
+     "err": 0.0041,
+     "cause": "ok"
+    },
+    {
+     "file": "d0110.jpg",
+     "family": "stacked_area",
+     "degradation": "jpeg",
+     "err": 0.3797,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "d0111.png",
+     "family": "scatter",
+     "degradation": "clean",
+     "err": 0.0007,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0112.png",
+     "family": "pie",
+     "degradation": "blur",
+     "err": 0.0021,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "d0113.png",
+     "family": "donut",
+     "degradation": "clean",
+     "err": 0.0003,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0114.jpg",
+     "family": "histogram",
+     "degradation": "jpeg",
+     "err": 0.3206,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "d0115.png",
+     "family": "bar_line",
+     "degradation": "clean",
+     "err": 0.001,
+     "cause": "ok"
+    },
+    {
+     "file": "d0116.png",
+     "family": "bar",
+     "degradation": "clean",
+     "err": 0.0005,
+     "cause": "ok"
+    },
+    {
+     "file": "d0117.png",
+     "family": "hbar",
+     "degradation": "clean",
+     "err": 0.0014,
+     "cause": "ok"
+    },
+    {
+     "file": "d0118.png",
+     "family": "grouped_bar",
+     "degradation": "noise",
+     "err": 0.0009,
+     "cause": "ok"
+    },
+    {
+     "file": "d0119.jpg",
+     "family": "stacked_bar",
+     "degradation": "jpeg",
+     "err": 0.0013,
+     "cause": "ok"
+    },
+    {
+     "file": "d0120.png",
+     "family": "stacked_hbar",
+     "degradation": "clean",
+     "err": 0.0011,
+     "cause": "ok"
+    },
+    {
+     "file": "d0121.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.0045,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0122.png",
+     "family": "step",
+     "degradation": "clean",
+     "err": 0.002,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0123.png",
+     "family": "area",
+     "degradation": "clean",
+     "err": 0.0064,
+     "cause": "ok"
+    },
+    {
+     "file": "d0124.png",
+     "family": "stacked_area",
+     "degradation": "blur",
+     "err": 0.0023,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0125.png",
+     "family": "scatter",
+     "degradation": "clean",
+     "err": 0.0031,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0126.png",
+     "family": "pie",
+     "degradation": "blur",
+     "err": 0.0013,
+     "cause": "ok"
+    },
+    {
+     "file": "d0127.jpg",
+     "family": "donut",
+     "degradation": "scan",
+     "err": 0.0075,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "d0128.png",
+     "family": "histogram",
+     "degradation": "down",
+     "err": 0.6803,
+     "pred": "area",
+     "cause": "type"
+    },
+    {
+     "file": "d0129.jpg",
+     "family": "bar_line",
+     "degradation": "scan",
+     "err": 0.001,
+     "cause": "ok"
+    },
+    {
+     "file": "d0130.png",
+     "family": "bar",
+     "degradation": "down",
+     "err": 0.0011,
+     "cause": "ok"
+    },
+    {
+     "file": "d0131.jpg",
+     "family": "hbar",
+     "degradation": "jpeg",
+     "err": 0.001,
+     "cause": "ok"
+    },
+    {
+     "file": "d0132.png",
+     "family": "grouped_bar",
+     "degradation": "rotate",
+     "err": 0.0008,
+     "cause": "ok"
+    },
+    {
+     "file": "d0133.png",
+     "family": "stacked_bar",
+     "degradation": "down",
+     "err": 0.0009,
+     "cause": "ok"
+    },
+    {
+     "file": "d0134.jpg",
+     "family": "stacked_hbar",
+     "degradation": "jpeg",
+     "err": 0.0027,
+     "cause": "ok"
+    },
+    {
+     "file": "d0135.png",
+     "family": "line",
+     "degradation": "blur",
+     "err": 0.0043,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0136.png",
+     "family": "step",
+     "degradation": "down",
+     "err": 0.0012,
+     "cause": "ok"
+    },
+    {
+     "file": "d0137.jpg",
+     "family": "area",
+     "degradation": "scan",
+     "err": 0.014,
+     "cause": "ok"
+    },
+    {
+     "file": "d0138.jpg",
+     "family": "stacked_area",
+     "degradation": "scan",
+     "err": 0.0168,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0139.png",
+     "family": "scatter",
+     "degradation": "clean",
+     "err": 0.0012,
+     "cause": "ok"
+    },
+    {
+     "file": "d0140.png",
+     "family": "pie",
+     "degradation": "clean",
+     "err": 0.0004,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0141.jpg",
+     "family": "donut",
+     "degradation": "scan",
+     "err": 0.0021,
+     "cause": "ok"
+    },
+    {
+     "file": "d0142.png",
+     "family": "histogram",
+     "degradation": "clean",
+     "err": 0.0022,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0143.jpg",
+     "family": "bar_line",
+     "degradation": "scan",
+     "err": 0.0209,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "d0144.png",
+     "family": "bar",
+     "degradation": "clean",
+     "err": 0.0006,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0145.jpg",
+     "family": "hbar",
+     "degradation": "jpeg",
+     "err": 0.001,
+     "cause": "ok"
+    },
+    {
+     "file": "d0146.png",
+     "family": "grouped_bar",
+     "degradation": "blur",
+     "err": 0.3386,
+     "pred": "bar_line",
+     "cause": "type"
+    },
+    {
+     "file": "d0147.png",
+     "family": "stacked_bar",
+     "degradation": "rotate",
+     "err": 0.0146,
+     "cause": "ok"
+    },
+    {
+     "file": "d0148.png",
+     "family": "stacked_hbar",
+     "degradation": "noise",
+     "err": 0.0007,
+     "cause": "ok"
+    },
+    {
+     "file": "d0149.png",
+     "family": "line",
+     "degradation": "noise",
+     "err": 0.0161,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "d0150.jpg",
+     "family": "step",
+     "degradation": "scan",
+     "err": 0.0054,
+     "cause": "ok"
+    },
+    {
+     "file": "d0151.png",
+     "family": "area",
+     "degradation": "noise",
+     "err": 0.1221,
+     "cause": "x_labels"
+    },
+    {
+     "file": "d0152.png",
+     "family": "stacked_area",
+     "degradation": "noise",
+     "err": 0.0311,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "d0153.jpg",
+     "family": "scatter",
+     "degradation": "jpeg",
+     "err": 0.0078,
+     "cause": "ok"
+    },
+    {
+     "file": "d0154.png",
+     "family": "pie",
+     "degradation": "blur",
+     "err": 0.0005,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0155.jpg",
+     "family": "donut",
+     "degradation": "jpeg",
+     "err": 0.0018,
+     "cause": "ok"
+    },
+    {
+     "file": "d0156.png",
+     "family": "histogram",
+     "degradation": "clean",
+     "err": 0.0005,
+     "cause": "ok"
+    },
+    {
+     "file": "d0157.png",
+     "family": "bar_line",
+     "degradation": "blur",
+     "err": 0.052,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "d0158.png",
+     "family": "bar",
+     "degradation": "noise",
+     "err": 0.0003,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0159.png",
+     "family": "hbar",
+     "degradation": "rotate",
+     "err": 0.0042,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0160.jpg",
+     "family": "grouped_bar",
+     "degradation": "jpeg",
+     "err": 0.0017,
+     "cause": "ok"
+    },
+    {
+     "file": "d0161.png",
+     "family": "stacked_bar",
+     "degradation": "blur",
+     "err": 0.0009,
+     "cause": "ok"
+    },
+    {
+     "file": "d0162.png",
+     "family": "stacked_hbar",
+     "degradation": "clean",
+     "err": 0.0006,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0163.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.0178,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0164.png",
+     "family": "step",
+     "degradation": "rotate",
+     "err": 0.0799,
+     "cause": "x_labels"
+    },
+    {
+     "file": "d0165.jpg",
+     "family": "area",
+     "degradation": "jpeg",
+     "err": 0.0079,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0166.jpg",
+     "family": "stacked_area",
+     "degradation": "scan",
+     "err": 0.034,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "d0167.jpg",
+     "family": "scatter",
+     "degradation": "scan",
+     "err": 0.0125,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0168.png",
+     "family": "pie",
+     "degradation": "clean",
+     "err": 0.0006,
+     "cause": "ok"
+    },
+    {
+     "file": "d0169.png",
+     "family": "donut",
+     "degradation": "clean",
+     "err": 0.001,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0170.png",
+     "family": "histogram",
+     "degradation": "clean",
+     "err": 0.0012,
+     "cause": "ok"
+    },
+    {
+     "file": "d0171.png",
+     "family": "bar_line",
+     "degradation": "blur",
+     "err": 0.0029,
+     "cause": "ok"
+    },
+    {
+     "file": "d0172.png",
+     "family": "bar",
+     "degradation": "down",
+     "err": 0.0015,
+     "cause": "ok"
+    },
+    {
+     "file": "d0173.jpg",
+     "family": "hbar",
+     "degradation": "scan",
+     "err": 0.0023,
+     "cause": "ok"
+    },
+    {
+     "file": "d0174.png",
+     "family": "grouped_bar",
+     "degradation": "noise",
+     "err": 0.0018,
+     "cause": "ok"
+    },
+    {
+     "file": "d0175.png",
+     "family": "stacked_bar",
+     "degradation": "clean",
+     "err": 0.0008,
+     "cause": "ok"
+    },
+    {
+     "file": "d0176.png",
+     "family": "stacked_hbar",
+     "degradation": "down",
+     "err": 0.0013,
+     "cause": "ok"
+    },
+    {
+     "file": "d0177.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.0022,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0179.png",
+     "family": "area",
+     "degradation": "down",
+     "err": 0.0037,
+     "cause": "ok"
+    },
+    {
+     "file": "d0180.png",
+     "family": "stacked_area",
+     "degradation": "clean",
+     "err": 0.0333,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "d0181.png",
+     "family": "scatter",
+     "degradation": "clean",
+     "err": 0.0015,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0182.jpg",
+     "family": "pie",
+     "degradation": "scan",
+     "err": 0.0116,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "d0183.png",
+     "family": "donut",
+     "degradation": "blur",
+     "err": 0.0008,
+     "cause": "ok"
+    },
+    {
+     "file": "d0185.png",
+     "family": "histogram",
+     "degradation": "rotate",
+     "err": 0.0017,
+     "cause": "ok"
+    },
+    {
+     "file": "d0186.png",
+     "family": "bar",
+     "degradation": "down",
+     "err": 0.0006,
+     "cause": "ok"
+    },
+    {
+     "file": "d0187.png",
+     "family": "hbar",
+     "degradation": "down",
+     "err": 0.002,
+     "cause": "ok"
+    },
+    {
+     "file": "d0188.png",
+     "family": "grouped_bar",
+     "degradation": "clean",
+     "err": 0.0016,
+     "cause": "ok"
+    },
+    {
+     "file": "d0189.png",
+     "family": "stacked_bar",
+     "degradation": "rotate",
+     "err": 0.0015,
+     "cause": "ok"
+    },
+    {
+     "file": "d0190.png",
+     "family": "stacked_hbar",
+     "degradation": "rotate",
+     "err": 0.0012,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0191.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.0034,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0192.png",
+     "family": "step",
+     "degradation": "rotate",
+     "err": 0.0026,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0193.png",
+     "family": "area",
+     "degradation": "blur",
+     "err": 0.0031,
+     "cause": "ok"
+    },
+    {
+     "file": "d0194.png",
+     "family": "stacked_area",
+     "degradation": "clean",
+     "err": 0.3419,
+     "pred": "bar_line",
+     "cause": "type"
+    },
+    {
+     "file": "d0195.png",
+     "family": "scatter",
+     "degradation": "clean",
+     "err": 0.0005,
+     "cause": "ok"
+    },
+    {
+     "file": "d0196.png",
+     "family": "pie",
+     "degradation": "noise",
+     "err": 0.0012,
+     "cause": "ok"
+    },
+    {
+     "file": "d0197.jpg",
+     "family": "donut",
+     "degradation": "scan",
+     "err": 0.0019,
+     "cause": "ok"
+    },
+    {
+     "file": "d0198.png",
+     "family": "bar_line",
+     "degradation": "clean",
+     "err": 0.0021,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0199.png",
+     "family": "histogram",
+     "degradation": "down",
+     "err": 0.0009,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0200.jpg",
+     "family": "bar",
+     "degradation": "scan",
+     "err": 0.0015,
+     "cause": "ok"
+    },
+    {
+     "file": "d0201.png",
+     "family": "hbar",
+     "degradation": "clean",
+     "err": 0.0008,
+     "cause": "ok"
+    },
+    {
+     "file": "d0202.png",
+     "family": "grouped_bar",
+     "degradation": "clean",
+     "err": 0.003,
+     "cause": "ok"
+    },
+    {
+     "file": "d0203.png",
+     "family": "stacked_bar",
+     "degradation": "clean",
+     "err": 0.0323,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "d0204.jpg",
+     "family": "stacked_hbar",
+     "degradation": "scan",
+     "err": 0.0008,
+     "cause": "ok"
+    },
+    {
+     "file": "d0205.png",
+     "family": "line",
+     "degradation": "noise",
+     "err": 0.0057,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0206.png",
+     "family": "step",
+     "degradation": "rotate",
+     "err": 0.0159,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0207.png",
+     "family": "area",
+     "degradation": "blur",
+     "err": 0.0078,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0208.png",
+     "family": "stacked_area",
+     "degradation": "down",
+     "err": 0.0325,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "d0209.png",
+     "family": "scatter",
+     "degradation": "clean",
+     "err": 0.0286,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "d0210.png",
+     "family": "pie",
+     "degradation": "down",
+     "err": 0.0006,
+     "cause": "ok"
+    },
+    {
+     "file": "d0211.png",
+     "family": "donut",
+     "degradation": "blur",
+     "err": 0.0016,
+     "cause": "ok"
+    },
+    {
+     "file": "d0212.png",
+     "family": "bar_line",
+     "degradation": "noise",
+     "err": 0.0016,
+     "cause": "ok"
+    },
+    {
+     "file": "d0213.jpg",
+     "family": "histogram",
+     "degradation": "jpeg",
+     "err": 0.0004,
+     "cause": "ok"
+    },
+    {
+     "file": "d0214.png",
+     "family": "bar",
+     "degradation": "clean",
+     "err": 0.0003,
+     "cause": "ok"
+    },
+    {
+     "file": "d0215.png",
+     "family": "hbar",
+     "degradation": "rotate",
+     "err": 1.0,
+     "code": "no_axis",
+     "cause": "no_axis"
+    },
+    {
+     "file": "d0216.png",
+     "family": "grouped_bar",
+     "degradation": "clean",
+     "err": 0.0006,
+     "cause": "ok"
+    },
+    {
+     "file": "d0217.jpg",
+     "family": "stacked_bar",
+     "degradation": "jpeg",
+     "err": 0.0344,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "d0218.png",
+     "family": "stacked_hbar",
+     "degradation": "blur",
+     "err": 0.7503,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "d0219.jpg",
+     "family": "line",
+     "degradation": "jpeg",
+     "err": 0.2874,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "d0220.jpg",
+     "family": "step",
+     "degradation": "jpeg",
+     "err": 0.015,
+     "cause": "ok"
+    },
+    {
+     "file": "d0221.jpg",
+     "family": "area",
+     "degradation": "scan",
+     "err": 1.0,
+     "code": "no_axis",
+     "cause": "no_axis"
+    },
+    {
+     "file": "d0222.png",
+     "family": "stacked_area",
+     "degradation": "rotate",
+     "err": 0.027,
+     "cause": "x_labels"
+    },
+    {
+     "file": "d0223.jpg",
+     "family": "scatter",
+     "degradation": "jpeg",
+     "err": 0.2639,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "d0224.png",
+     "family": "pie",
+     "degradation": "rotate",
+     "err": 0.0029,
+     "cause": "ok"
+    },
+    {
+     "file": "d0225.png",
+     "family": "donut",
+     "degradation": "blur",
+     "err": 0.072,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "d0226.png",
+     "family": "histogram",
+     "degradation": "clean",
+     "err": 0.0027,
+     "cause": "ok"
+    },
+    {
+     "file": "d0227.png",
+     "family": "bar_line",
+     "degradation": "rotate",
+     "err": 0.0023,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0228.jpg",
+     "family": "bar",
+     "degradation": "jpeg",
+     "err": 0.0017,
+     "cause": "ok"
+    },
+    {
+     "file": "d0229.png",
+     "family": "hbar",
+     "degradation": "noise",
+     "err": 0.8587,
+     "pred": "step",
+     "cause": "type"
+    },
+    {
+     "file": "d0230.jpg",
+     "family": "grouped_bar",
+     "degradation": "jpeg",
+     "err": 0.0013,
+     "cause": "ok"
+    },
+    {
+     "file": "d0231.png",
+     "family": "stacked_bar",
+     "degradation": "clean",
+     "err": 0.0009,
+     "cause": "ok"
+    },
+    {
+     "file": "d0232.png",
+     "family": "stacked_hbar",
+     "degradation": "down",
+     "err": 0.8028,
+     "pred": "hbar",
+     "cause": "type"
+    },
+    {
+     "file": "d0233.jpg",
+     "family": "line",
+     "degradation": "jpeg",
+     "err": 0.0954,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "d0234.png",
+     "family": "step",
+     "degradation": "down",
+     "err": 0.0187,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0235.png",
+     "family": "area",
+     "degradation": "noise",
+     "err": 0.0092,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0236.jpg",
+     "family": "stacked_area",
+     "degradation": "scan",
+     "err": 1.0,
+     "code": "no_axis",
+     "cause": "no_axis"
+    },
+    {
+     "file": "d0237.png",
+     "family": "scatter",
+     "degradation": "clean",
+     "err": 0.0024,
+     "cause": "ok"
+    },
+    {
+     "file": "d0238.png",
+     "family": "pie",
+     "degradation": "clean",
+     "err": 0.0494,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "d0239.png",
+     "family": "donut",
+     "degradation": "noise",
+     "err": 0.0006,
+     "cause": "ok"
+    },
+    {
+     "file": "d0241.png",
+     "family": "bar_line",
+     "degradation": "down",
+     "err": 0.759,
+     "pred": "area",
+     "cause": "type"
+    },
+    {
+     "file": "d0242.png",
+     "family": "bar",
+     "degradation": "noise",
+     "err": 0.7103,
+     "pred": "area",
+     "cause": "type"
+    },
+    {
+     "file": "d0243.png",
+     "family": "hbar",
+     "degradation": "blur",
+     "err": 1.0,
+     "code": "no_axis",
+     "cause": "no_axis"
+    },
+    {
+     "file": "d0244.png",
+     "family": "grouped_bar",
+     "degradation": "clean",
+     "err": 0.001,
+     "cause": "ok"
+    },
+    {
+     "file": "d0245.png",
+     "family": "stacked_bar",
+     "degradation": "rotate",
+     "err": 0.9836,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "d0246.png",
+     "family": "stacked_hbar",
+     "degradation": "clean",
+     "err": 0.0019,
+     "cause": "ok"
+    },
+    {
+     "file": "d0247.jpg",
+     "family": "line",
+     "degradation": "jpeg",
+     "err": 0.0065,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0248.jpg",
+     "family": "step",
+     "degradation": "scan",
+     "err": 0.6454,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "d0249.png",
+     "family": "area",
+     "degradation": "down",
+     "err": 0.0875,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "d0250.png",
+     "family": "stacked_area",
+     "degradation": "down",
+     "err": 1.0,
+     "code": "no_axis",
+     "cause": "no_axis"
+    },
+    {
+     "file": "d0251.png",
+     "family": "scatter",
+     "degradation": "down",
+     "err": 1.0,
+     "code": "no_axis",
+     "cause": "no_axis"
+    },
+    {
+     "file": "d0252.png",
+     "family": "pie",
+     "degradation": "noise",
+     "err": 0.0336,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "d0253.png",
+     "family": "donut",
+     "degradation": "blur",
+     "err": 0.0086,
+     "cause": "ok"
+    },
+    {
+     "file": "d0255.png",
+     "family": "bar_line",
+     "degradation": "noise",
+     "err": 0.0115,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0256.png",
+     "family": "bar",
+     "degradation": "clean",
+     "err": 0.0025,
+     "cause": "ok"
+    },
+    {
+     "file": "d0257.png",
+     "family": "hbar",
+     "degradation": "rotate",
+     "err": 0.0015,
+     "cause": "ok"
+    },
+    {
+     "file": "d0258.png",
+     "family": "grouped_bar",
+     "degradation": "clean",
+     "err": 0.002,
+     "cause": "ok"
+    },
+    {
+     "file": "d0259.png",
+     "family": "stacked_bar",
+     "degradation": "noise",
+     "err": 0.0019,
+     "cause": "ok"
+    },
+    {
+     "file": "d0260.png",
+     "family": "stacked_hbar",
+     "degradation": "blur",
+     "err": 0.0014,
+     "cause": "ok"
+    },
+    {
+     "file": "d0261.jpg",
+     "family": "line",
+     "degradation": "scan",
+     "err": 0.0084,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0262.png",
+     "family": "step",
+     "degradation": "down",
+     "err": 0.0016,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0263.jpg",
+     "family": "area",
+     "degradation": "jpeg",
+     "err": 0.0178,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0264.png",
+     "family": "stacked_area",
+     "degradation": "clean",
+     "err": 0.002,
+     "cause": "ok"
+    },
+    {
+     "file": "d0265.png",
+     "family": "scatter",
+     "degradation": "rotate",
+     "err": 0.0021,
+     "cause": "ok"
+    },
+    {
+     "file": "d0266.png",
+     "family": "pie",
+     "degradation": "clean",
+     "err": 0.0014,
+     "cause": "ok"
+    },
+    {
+     "file": "d0267.png",
+     "family": "donut",
+     "degradation": "down",
+     "err": 0.0013,
+     "cause": "ok"
+    },
+    {
+     "file": "d0268.png",
+     "family": "histogram",
+     "degradation": "down",
+     "err": 0.0024,
+     "cause": "ok"
+    },
+    {
+     "file": "d0269.jpg",
+     "family": "bar_line",
+     "degradation": "jpeg",
+     "err": 0.1009,
+     "pred": "bar",
+     "cause": "type"
+    },
+    {
+     "file": "d0270.png",
+     "family": "bar",
+     "degradation": "noise",
+     "err": 0.0004,
+     "cause": "ok"
+    },
+    {
+     "file": "d0271.png",
+     "family": "hbar",
+     "degradation": "noise",
+     "err": 0.0015,
+     "cause": "ok"
+    },
+    {
+     "file": "d0272.png",
+     "family": "grouped_bar",
+     "degradation": "clean",
+     "err": 0.0023,
+     "cause": "ok"
+    },
+    {
+     "file": "d0273.jpg",
+     "family": "stacked_bar",
+     "degradation": "jpeg",
+     "err": 0.003,
+     "cause": "ok"
+    },
+    {
+     "file": "d0274.png",
+     "family": "stacked_hbar",
+     "degradation": "down",
+     "err": 0.0015,
+     "cause": "ok"
+    },
+    {
+     "file": "d0275.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.0029,
+     "cause": "ok"
+    },
+    {
+     "file": "d0276.png",
+     "family": "step",
+     "degradation": "clean",
+     "err": 0.0015,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0277.png",
+     "family": "area",
+     "degradation": "clean",
+     "err": 0.0034,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0279.png",
+     "family": "scatter",
+     "degradation": "down",
+     "err": 1.0,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "d0280.png",
+     "family": "pie",
+     "degradation": "clean",
+     "err": 0.0008,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0281.jpg",
+     "family": "donut",
+     "degradation": "scan",
+     "err": 0.0133,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "d0282.png",
+     "family": "histogram",
+     "degradation": "clean",
+     "err": 0.0032,
+     "cause": "ok"
+    },
+    {
+     "file": "d0283.png",
+     "family": "bar_line",
+     "degradation": "clean",
+     "err": 0.0422,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "d0284.png",
+     "family": "bar",
+     "degradation": "blur",
+     "err": 0.0028,
+     "cause": "ok"
+    },
+    {
+     "file": "d0285.jpg",
+     "family": "hbar",
+     "degradation": "scan",
+     "err": 0.001,
+     "cause": "ok"
+    },
+    {
+     "file": "d0286.png",
+     "family": "grouped_bar",
+     "degradation": "blur",
+     "err": 0.0025,
+     "cause": "ok"
+    },
+    {
+     "file": "d0287.png",
+     "family": "stacked_bar",
+     "degradation": "down",
+     "err": 0.0016,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0288.png",
+     "family": "stacked_hbar",
+     "degradation": "down",
+     "err": 0.0012,
+     "cause": "ok"
+    },
+    {
+     "file": "d0289.png",
+     "family": "line",
+     "degradation": "rotate",
+     "err": 0.0017,
+     "cause": "ok"
+    },
+    {
+     "file": "d0290.png",
+     "family": "step",
+     "degradation": "rotate",
+     "err": 0.0015,
+     "cause": "ok"
+    },
+    {
+     "file": "d0291.jpg",
+     "family": "area",
+     "degradation": "jpeg",
+     "err": 0.5042,
+     "pred": "line",
+     "cause": "type"
+    },
+    {
+     "file": "d0292.png",
+     "family": "stacked_area",
+     "degradation": "clean",
+     "err": 0.0043,
+     "cause": "ok"
+    },
+    {
+     "file": "d0293.png",
+     "family": "scatter",
+     "degradation": "blur",
+     "err": 0.0063,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "d0294.png",
+     "family": "pie",
+     "degradation": "clean",
+     "err": 0.0008,
+     "cause": "ok"
+    },
+    {
+     "file": "d0295.png",
+     "family": "donut",
+     "degradation": "clean",
+     "err": 0.0001,
+     "cause": "ok"
+    },
+    {
+     "file": "d0296.png",
+     "family": "histogram",
+     "degradation": "clean",
+     "err": 0.0012,
+     "cause": "ok"
+    },
+    {
+     "file": "d0297.png",
+     "family": "bar_line",
+     "degradation": "clean",
+     "err": 0.0045,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0298.png",
+     "family": "bar",
+     "degradation": "clean",
+     "err": 0.0024,
+     "cause": "ok"
+    },
+    {
+     "file": "d0299.png",
+     "family": "hbar",
+     "degradation": "rotate",
+     "err": 0.028,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "d0300.png",
+     "family": "grouped_bar",
+     "degradation": "clean",
+     "err": 0.0025,
+     "cause": "ok"
+    },
+    {
+     "file": "d0301.png",
+     "family": "stacked_bar",
+     "degradation": "down",
+     "err": 0.0032,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0302.jpg",
+     "family": "stacked_hbar",
+     "degradation": "jpeg",
+     "err": 0.7508,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "d0303.png",
+     "family": "line",
+     "degradation": "down",
+     "err": 0.0533,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "d0304.jpg",
+     "family": "step",
+     "degradation": "scan",
+     "err": 0.2052,
+     "cause": "x_labels"
+    },
+    {
+     "file": "d0305.jpg",
+     "family": "area",
+     "degradation": "scan",
+     "err": 0.0161,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0306.png",
+     "family": "stacked_area",
+     "degradation": "noise",
+     "err": 0.004,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "d0307.png",
+     "family": "scatter",
+     "degradation": "noise",
+     "err": 0.0016,
+     "cause": "ok"
+    },
+    {
+     "file": "d0308.jpg",
+     "family": "pie",
+     "degradation": "scan",
+     "err": 0.001,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0309.png",
+     "family": "donut",
+     "degradation": "noise",
+     "err": 0.0002,
+     "cause": "ok"
+    },
+    {
+     "file": "d0310.png",
+     "family": "histogram",
+     "degradation": "clean",
+     "err": 0.3851,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "d0311.jpg",
+     "family": "bar_line",
+     "degradation": "scan",
+     "err": 0.0028,
+     "cause": "ok"
+    },
+    {
+     "file": "d0312.png",
+     "family": "bar",
+     "degradation": "noise",
+     "err": 0.0011,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0313.png",
+     "family": "hbar",
+     "degradation": "clean",
+     "err": 0.0015,
+     "cause": "ok"
+    },
+    {
+     "file": "d0314.png",
+     "family": "grouped_bar",
+     "degradation": "clean",
+     "err": 0.0015,
+     "cause": "ok"
+    },
+    {
+     "file": "d0315.jpg",
+     "family": "stacked_bar",
+     "degradation": "jpeg",
+     "err": 0.0017,
+     "cause": "ok"
+    },
+    {
+     "file": "d0316.jpg",
+     "family": "stacked_hbar",
+     "degradation": "jpeg",
+     "err": 0.0018,
+     "cause": "ok"
+    },
+    {
+     "file": "d0317.png",
+     "family": "line",
+     "degradation": "noise",
+     "err": 0.0046,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0318.png",
+     "family": "step",
+     "degradation": "down",
+     "err": 0.0021,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0320.jpg",
+     "family": "stacked_area",
+     "degradation": "jpeg",
+     "err": 0.0461,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "d0321.png",
+     "family": "scatter",
+     "degradation": "clean",
+     "err": 0.0028,
+     "cause": "ok"
+    },
+    {
+     "file": "d0322.png",
+     "family": "pie",
+     "degradation": "clean",
+     "err": 0.0006,
+     "cause": "ok"
+    },
+    {
+     "file": "d0323.png",
+     "family": "donut",
+     "degradation": "clean",
+     "err": 0.0003,
+     "cause": "ok"
+    },
+    {
+     "file": "d0324.jpg",
+     "family": "histogram",
+     "degradation": "jpeg",
+     "err": 0.0009,
+     "cause": "ok"
+    },
+    {
+     "file": "d0325.png",
+     "family": "bar_line",
+     "degradation": "clean",
+     "err": 0.0018,
+     "cause": "ok"
+    },
+    {
+     "file": "d0326.png",
+     "family": "bar",
+     "degradation": "rotate",
+     "err": 0.0016,
+     "cause": "ok"
+    },
+    {
+     "file": "d0327.jpg",
+     "family": "hbar",
+     "degradation": "scan",
+     "err": 0.0012,
+     "cause": "ok"
+    },
+    {
+     "file": "d0328.png",
+     "family": "grouped_bar",
+     "degradation": "rotate",
+     "err": 0.0003,
+     "cause": "ok"
+    },
+    {
+     "file": "d0329.png",
+     "family": "stacked_bar",
+     "degradation": "blur",
+     "err": 0.0014,
+     "cause": "ok"
+    },
+    {
+     "file": "d0330.jpg",
+     "family": "stacked_hbar",
+     "degradation": "jpeg",
+     "err": 0.0278,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "d0331.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.0032,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0332.png",
+     "family": "step",
+     "degradation": "blur",
+     "err": 0.1636,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "d0333.png",
+     "family": "area",
+     "degradation": "down",
+     "err": 0.1415,
+     "cause": "x_labels"
+    },
+    {
+     "file": "d0334.jpg",
+     "family": "stacked_area",
+     "degradation": "jpeg",
+     "err": 0.0053,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0335.png",
+     "family": "scatter",
+     "degradation": "blur",
+     "err": 0.0019,
+     "cause": "ok"
+    },
+    {
+     "file": "d0336.png",
+     "family": "pie",
+     "degradation": "clean",
+     "err": 0.0011,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0337.png",
+     "family": "donut",
+     "degradation": "noise",
+     "err": 0.0007,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "d0338.jpg",
+     "family": "histogram",
+     "degradation": "jpeg",
+     "err": 0.0019,
+     "cause": "ok"
+    },
+    {
+     "file": "d0339.png",
+     "family": "bar_line",
+     "degradation": "down",
+     "err": 0.0063,
+     "cause": "refused_ok"
+    }
+   ]
+  },
+  "synthetic-families-dev": {
+   "n": 112,
+   "causes": {
+    "ok": 39,
+    "refused_ok": 29,
+    "marks": 25,
+    "fail_other": 6,
+    "no_axis": 6,
+    "type": 4,
+    "right_axis": 3
+   },
+   "by_family": {
+    "bubble": {
+     "refused_ok": 6,
+     "marks": 5,
+     "ok": 1,
+     "type": 2
+    },
+    "dot_plot": {
+     "marks": 5,
+     "ok": 1,
+     "no_axis": 6,
+     "refused_ok": 1,
+     "type": 1
+    },
+    "dual_axis": {
+     "fail_other": 1,
+     "refused_ok": 5,
+     "right_axis": 3,
+     "marks": 4,
+     "ok": 1
+    },
+    "errorbar": {
+     "type": 1,
+     "ok": 12,
+     "refused_ok": 1
+    },
+    "lollipop": {
+     "refused_ok": 1,
+     "fail_other": 5,
+     "ok": 6,
+     "marks": 2
+    },
+    "slope": {
+     "marks": 8,
+     "ok": 3,
+     "refused_ok": 3
+    },
+    "stacked100": {
+     "refused_ok": 10,
+     "marks": 1,
+     "ok": 3
+    },
+    "waterfall": {
+     "ok": 12,
+     "refused_ok": 2
+    }
+   },
+   "charts": [
+    {
+     "file": "g0000.png",
+     "family": "stacked100",
+     "degradation": "down",
+     "err": 0.002,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0001.png",
+     "family": "lollipop",
+     "degradation": "down",
+     "err": 0.002,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0002.jpg",
+     "family": "dot_plot",
+     "degradation": "scan",
+     "err": 0.2206,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "g0003.png",
+     "family": "slope",
+     "degradation": "down",
+     "err": 0.1891,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "g0004.png",
+     "family": "waterfall",
+     "degradation": "down",
+     "err": 0.0048,
+     "cause": "ok"
+    },
+    {
+     "file": "g0005.png",
+     "family": "bubble",
+     "degradation": "blur",
+     "err": 0.0163,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0006.jpg",
+     "family": "errorbar",
+     "degradation": "jpeg",
+     "err": 0.0004,
+     "pred": "bar_line",
+     "cause": "type"
+    },
+    {
+     "file": "g0007.png",
+     "family": "dual_axis",
+     "degradation": "noise",
+     "err": 1.0,
+     "code": "no_marks",
+     "cause": "fail_other"
+    },
+    {
+     "file": "g0008.png",
+     "family": "stacked100",
+     "degradation": "clean",
+     "err": 0.2593,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "g0009.png",
+     "family": "lollipop",
+     "degradation": "rotate",
+     "err": 1.0,
+     "code": "no_marks",
+     "cause": "fail_other"
+    },
+    {
+     "file": "g0010.png",
+     "family": "dot_plot",
+     "degradation": "clean",
+     "err": 0.4149,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "g0011.png",
+     "family": "slope",
+     "degradation": "clean",
+     "err": 0.4013,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "g0012.png",
+     "family": "waterfall",
+     "degradation": "down",
+     "err": 0.0023,
+     "cause": "ok"
+    },
+    {
+     "file": "g0013.png",
+     "family": "bubble",
+     "degradation": "down",
+     "err": 0.0209,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "g0014.png",
+     "family": "errorbar",
+     "degradation": "noise",
+     "err": 0.001,
+     "cause": "ok"
+    },
+    {
+     "file": "g0015.jpg",
+     "family": "dual_axis",
+     "degradation": "jpeg",
+     "err": 0.0039,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0016.png",
+     "family": "stacked100",
+     "degradation": "clean",
+     "err": 0.0041,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0017.png",
+     "family": "lollipop",
+     "degradation": "rotate",
+     "err": 0.0012,
+     "cause": "ok"
+    },
+    {
+     "file": "g0018.png",
+     "family": "dot_plot",
+     "degradation": "clean",
+     "err": 0.0005,
+     "cause": "ok"
+    },
+    {
+     "file": "g0019.jpg",
+     "family": "slope",
+     "degradation": "jpeg",
+     "err": 0.014,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "g0020.png",
+     "family": "waterfall",
+     "degradation": "down",
+     "err": 0.0034,
+     "cause": "ok"
+    },
+    {
+     "file": "g0021.png",
+     "family": "bubble",
+     "degradation": "blur",
+     "err": 0.0071,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0022.png",
+     "family": "errorbar",
+     "degradation": "down",
+     "err": 0.0058,
+     "cause": "ok"
+    },
+    {
+     "file": "g0023.png",
+     "family": "dual_axis",
+     "degradation": "down",
+     "err": 0.0083,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0024.png",
+     "family": "stacked100",
+     "degradation": "noise",
+     "err": 0.01,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0025.png",
+     "family": "lollipop",
+     "degradation": "noise",
+     "err": 0.0032,
+     "cause": "ok"
+    },
+    {
+     "file": "g0026.png",
+     "family": "dot_plot",
+     "degradation": "clean",
+     "err": 1.0,
+     "code": "no_axis",
+     "cause": "no_axis"
+    },
+    {
+     "file": "g0027.jpg",
+     "family": "slope",
+     "degradation": "scan",
+     "err": 0.2582,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "g0028.png",
+     "family": "waterfall",
+     "degradation": "clean",
+     "err": 0.0009,
+     "cause": "ok"
+    },
+    {
+     "file": "g0029.png",
+     "family": "bubble",
+     "degradation": "clean",
+     "err": 0.0014,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0030.png",
+     "family": "errorbar",
+     "degradation": "clean",
+     "err": 0.0004,
+     "cause": "ok"
+    },
+    {
+     "file": "g0031.png",
+     "family": "dual_axis",
+     "degradation": "clean",
+     "err": 0.0029,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0032.png",
+     "family": "stacked100",
+     "degradation": "blur",
+     "err": 0.0058,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0033.png",
+     "family": "lollipop",
+     "degradation": "noise",
+     "err": 0.0015,
+     "cause": "ok"
+    },
+    {
+     "file": "g0034.png",
+     "family": "dot_plot",
+     "degradation": "blur",
+     "err": 1.0,
+     "code": "no_axis",
+     "cause": "no_axis"
+    },
+    {
+     "file": "g0035.jpg",
+     "family": "slope",
+     "degradation": "jpeg",
+     "err": 0.0069,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "g0036.png",
+     "family": "waterfall",
+     "degradation": "clean",
+     "err": 0.0015,
+     "cause": "ok"
+    },
+    {
+     "file": "g0037.png",
+     "family": "bubble",
+     "degradation": "clean",
+     "err": 0.0073,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0038.png",
+     "family": "errorbar",
+     "degradation": "rotate",
+     "err": 0.0024,
+     "cause": "ok"
+    },
+    {
+     "file": "g0039.png",
+     "family": "dual_axis",
+     "degradation": "down",
+     "err": 0.4887,
+     "cause": "right_axis"
+    },
+    {
+     "file": "g0040.png",
+     "family": "stacked100",
+     "degradation": "clean",
+     "err": 0.0016,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0041.jpg",
+     "family": "lollipop",
+     "degradation": "jpeg",
+     "err": 1.0,
+     "code": "no_marks",
+     "cause": "fail_other"
+    },
+    {
+     "file": "g0042.png",
+     "family": "dot_plot",
+     "degradation": "clean",
+     "err": 0.0004,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0043.png",
+     "family": "slope",
+     "degradation": "clean",
+     "err": 0.0018,
+     "cause": "ok"
+    },
+    {
+     "file": "g0044.png",
+     "family": "waterfall",
+     "degradation": "clean",
+     "err": 0.0018,
+     "cause": "ok"
+    },
+    {
+     "file": "g0045.png",
+     "family": "bubble",
+     "degradation": "rotate",
+     "err": 0.2174,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "g0046.png",
+     "family": "errorbar",
+     "degradation": "blur",
+     "err": 0.0034,
+     "cause": "ok"
+    },
+    {
+     "file": "g0047.png",
+     "family": "dual_axis",
+     "degradation": "rotate",
+     "err": 0.5012,
+     "cause": "right_axis"
+    },
+    {
+     "file": "g0048.png",
+     "family": "stacked100",
+     "degradation": "clean",
+     "err": 0.0015,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0049.jpg",
+     "family": "lollipop",
+     "degradation": "jpeg",
+     "err": 1.0,
+     "code": "no_marks",
+     "cause": "fail_other"
+    },
+    {
+     "file": "g0050.png",
+     "family": "dot_plot",
+     "degradation": "noise",
+     "err": 1.0,
+     "code": "no_axis",
+     "cause": "no_axis"
+    },
+    {
+     "file": "g0051.png",
+     "family": "slope",
+     "degradation": "rotate",
+     "err": 0.003,
+     "cause": "ok"
+    },
+    {
+     "file": "g0052.png",
+     "family": "waterfall",
+     "degradation": "clean",
+     "err": 0.0003,
+     "cause": "ok"
+    },
+    {
+     "file": "g0053.jpg",
+     "family": "bubble",
+     "degradation": "jpeg",
+     "err": 0.008,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "g0054.jpg",
+     "family": "errorbar",
+     "degradation": "scan",
+     "err": 0.0045,
+     "cause": "ok"
+    },
+    {
+     "file": "g0055.png",
+     "family": "dual_axis",
+     "degradation": "clean",
+     "err": 0.0441,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "g0056.png",
+     "family": "stacked100",
+     "degradation": "rotate",
+     "err": 0.0014,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0057.jpg",
+     "family": "lollipop",
+     "degradation": "scan",
+     "err": 0.4847,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "g0058.png",
+     "family": "dot_plot",
+     "degradation": "blur",
+     "err": 1.0,
+     "code": "no_axis",
+     "cause": "no_axis"
+    },
+    {
+     "file": "g0059.jpg",
+     "family": "slope",
+     "degradation": "scan",
+     "err": 0.1523,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "g0060.png",
+     "family": "waterfall",
+     "degradation": "blur",
+     "err": 0.001,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0061.png",
+     "family": "bubble",
+     "degradation": "clean",
+     "err": 0.0062,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "g0062.png",
+     "family": "errorbar",
+     "degradation": "clean",
+     "err": 0.001,
+     "cause": "ok"
+    },
+    {
+     "file": "g0063.png",
+     "family": "dual_axis",
+     "degradation": "down",
+     "err": 0.3749,
+     "cause": "right_axis"
+    },
+    {
+     "file": "g0064.png",
+     "family": "stacked100",
+     "degradation": "down",
+     "err": 0.0027,
+     "cause": "ok"
+    },
+    {
+     "file": "g0065.jpg",
+     "family": "lollipop",
+     "degradation": "jpeg",
+     "err": 1.0,
+     "code": "no_marks",
+     "cause": "fail_other"
+    },
+    {
+     "file": "g0066.jpg",
+     "family": "dot_plot",
+     "degradation": "scan",
+     "err": 0.362,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "g0067.png",
+     "family": "slope",
+     "degradation": "blur",
+     "err": 0.0012,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0068.jpg",
+     "family": "waterfall",
+     "degradation": "scan",
+     "err": 0.0037,
+     "cause": "ok"
+    },
+    {
+     "file": "g0069.jpg",
+     "family": "bubble",
+     "degradation": "jpeg",
+     "err": 0.0658,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "g0070.png",
+     "family": "errorbar",
+     "degradation": "clean",
+     "err": 0.0005,
+     "cause": "ok"
+    },
+    {
+     "file": "g0071.png",
+     "family": "dual_axis",
+     "degradation": "blur",
+     "err": 0.0035,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0072.png",
+     "family": "stacked100",
+     "degradation": "rotate",
+     "err": 0.0025,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0073.jpg",
+     "family": "lollipop",
+     "degradation": "jpeg",
+     "err": 0.0021,
+     "cause": "ok"
+    },
+    {
+     "file": "g0074.png",
+     "family": "dot_plot",
+     "degradation": "clean",
+     "err": 1.0,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "g0075.png",
+     "family": "slope",
+     "degradation": "clean",
+     "err": 0.0032,
+     "cause": "ok"
+    },
+    {
+     "file": "g0076.jpg",
+     "family": "waterfall",
+     "degradation": "scan",
+     "err": 0.0044,
+     "cause": "ok"
+    },
+    {
+     "file": "g0077.jpg",
+     "family": "bubble",
+     "degradation": "scan",
+     "err": 0.0016,
+     "cause": "ok"
+    },
+    {
+     "file": "g0078.png",
+     "family": "errorbar",
+     "degradation": "clean",
+     "err": 0.0011,
+     "cause": "ok"
+    },
+    {
+     "file": "g0079.png",
+     "family": "dual_axis",
+     "degradation": "blur",
+     "err": 0.0024,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0080.png",
+     "family": "stacked100",
+     "degradation": "rotate",
+     "err": 0.001,
+     "cause": "ok"
+    },
+    {
+     "file": "g0081.png",
+     "family": "lollipop",
+     "degradation": "rotate",
+     "err": 0.0023,
+     "cause": "ok"
+    },
+    {
+     "file": "g0082.png",
+     "family": "dot_plot",
+     "degradation": "clean",
+     "err": 1.0,
+     "code": "no_axis",
+     "cause": "no_axis"
+    },
+    {
+     "file": "g0083.png",
+     "family": "slope",
+     "degradation": "clean",
+     "err": 0.8537,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "g0084.png",
+     "family": "waterfall",
+     "degradation": "rotate",
+     "err": 0.0012,
+     "cause": "ok"
+    },
+    {
+     "file": "g0085.png",
+     "family": "bubble",
+     "degradation": "clean",
+     "err": 0.0018,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0086.png",
+     "family": "errorbar",
+     "degradation": "clean",
+     "err": 0.0013,
+     "cause": "ok"
+    },
+    {
+     "file": "g0087.png",
+     "family": "dual_axis",
+     "degradation": "down",
+     "err": 0.0039,
+     "cause": "ok"
+    },
+    {
+     "file": "g0088.png",
+     "family": "stacked100",
+     "degradation": "clean",
+     "err": 0.002,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0089.jpg",
+     "family": "lollipop",
+     "degradation": "scan",
+     "err": 0.1032,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "g0090.png",
+     "family": "dot_plot",
+     "degradation": "blur",
+     "err": 1.0,
+     "code": "no_axis",
+     "cause": "no_axis"
+    },
+    {
+     "file": "g0091.jpg",
+     "family": "slope",
+     "degradation": "scan",
+     "err": 0.0072,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0092.png",
+     "family": "waterfall",
+     "degradation": "noise",
+     "err": 0.0011,
+     "cause": "ok"
+    },
+    {
+     "file": "g0093.png",
+     "family": "bubble",
+     "degradation": "down",
+     "err": 0.0129,
+     "pred": "line",
+     "cause": "type"
+    },
+    {
+     "file": "g0094.png",
+     "family": "errorbar",
+     "degradation": "blur",
+     "err": 0.0018,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0095.png",
+     "family": "dual_axis",
+     "degradation": "clean",
+     "err": 0.0415,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "g0096.png",
+     "family": "stacked100",
+     "degradation": "clean",
+     "err": 0.0025,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0097.png",
+     "family": "lollipop",
+     "degradation": "rotate",
+     "err": 1.0,
+     "code": "no_marks",
+     "cause": "fail_other"
+    },
+    {
+     "file": "g0098.png",
+     "family": "dot_plot",
+     "degradation": "blur",
+     "err": 0.1431,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "g0099.png",
+     "family": "slope",
+     "degradation": "down",
+     "err": 0.002,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "g0100.png",
+     "family": "waterfall",
+     "degradation": "blur",
+     "err": 0.0069,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0101.png",
+     "family": "bubble",
+     "degradation": "down",
+     "err": 0.0033,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0102.jpg",
+     "family": "errorbar",
+     "degradation": "jpeg",
+     "err": 0.0033,
+     "cause": "ok"
+    },
+    {
+     "file": "g0103.jpg",
+     "family": "dual_axis",
+     "degradation": "jpeg",
+     "err": 0.0061,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "g0104.png",
+     "family": "stacked100",
+     "degradation": "noise",
+     "err": 0.0015,
+     "cause": "ok"
+    },
+    {
+     "file": "g0105.jpg",
+     "family": "lollipop",
+     "degradation": "jpeg",
+     "err": 0.0018,
+     "cause": "ok"
+    },
+    {
+     "file": "g0106.png",
+     "family": "dot_plot",
+     "degradation": "blur",
+     "err": 1.0,
+     "pred": "bar",
+     "cause": "type"
+    },
+    {
+     "file": "g0107.png",
+     "family": "slope",
+     "degradation": "clean",
+     "err": 0.0008,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "g0108.png",
+     "family": "waterfall",
+     "degradation": "clean",
+     "err": 0.0006,
+     "cause": "ok"
+    },
+    {
+     "file": "g0109.png",
+     "family": "bubble",
+     "degradation": "down",
+     "err": 0.2101,
+     "pred": "step",
+     "cause": "type"
+    },
+    {
+     "file": "g0110.png",
+     "family": "errorbar",
+     "degradation": "down",
+     "err": 0.0013,
+     "cause": "ok"
+    },
+    {
+     "file": "g0111.png",
+     "family": "dual_axis",
+     "degradation": "clean",
+     "err": 0.0286,
+     "count_ok": true,
+     "cause": "marks"
+    }
+   ]
+  },
+  "real-owid dev": {
+   "n": 40,
+   "causes": {
+    "marks": 14,
+    "refused_ok": 12,
+    "ok": 5,
+    "x_labels": 4,
+    "no_axis": 3,
+    "type": 1,
+    "fail_other": 1
+   },
+   "by_family": {
+    "hbar": {
+     "marks": 1,
+     "ok": 2,
+     "no_axis": 1,
+     "refused_ok": 1
+    },
+    "line": {
+     "marks": 10,
+     "x_labels": 4,
+     "ok": 2,
+     "refused_ok": 11,
+     "no_axis": 1
+    },
+    "stacked_area": {
+     "type": 1,
+     "fail_other": 1,
+     "marks": 1
+    },
+    "stacked_bar": {
+     "marks": 1,
+     "ok": 1
+    },
+    "stacked_hbar": {
+     "marks": 1,
+     "no_axis": 1
+    }
+   },
+   "charts": [
+    {
+     "file": "o0001.png",
+     "family": "hbar",
+     "degradation": "clean",
+     "err": 0.0479,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "o0004.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.1861,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "o0008.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.0427,
+     "cause": "x_labels"
+    },
+    {
+     "file": "o0009.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.1129,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "o0010.png",
+     "family": "hbar",
+     "degradation": "clean",
+     "err": 0.0013,
+     "cause": "ok"
+    },
+    {
+     "file": "o0012.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.0611,
+     "count_ok": true,
+     "cause": "marks"
+    },
+    {
+     "file": "o0028.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.3506,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "o0034.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.0007,
+     "cause": "ok"
+    },
+    {
+     "file": "o0038.png",
+     "family": "stacked_area",
+     "degradation": "clean",
+     "err": 0.4119,
+     "pred": "area",
+     "cause": "type"
+    },
+    {
+     "file": "o0046.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.0077,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "o0051.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.0013,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "o0062.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 1.0,
+     "cause": "x_labels"
+    },
+    {
+     "file": "o0064.png",
+     "family": "stacked_hbar",
+     "degradation": "clean",
+     "err": 0.0877,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "o0068.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.0055,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "o0070.png",
+     "family": "hbar",
+     "degradation": "clean",
+     "err": 0.0014,
+     "cause": "ok"
+    },
+    {
+     "file": "o0084.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.0085,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "o0090.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.0647,
+     "cause": "x_labels"
+    },
+    {
+     "file": "o0092.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.3486,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "o0093.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.0889,
+     "cause": "x_labels"
+    },
+    {
+     "file": "o0098.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.0046,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "o0100.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.0056,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "o0103.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.171,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "o0104.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.0019,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "o0105.png",
+     "family": "hbar",
+     "degradation": "clean",
+     "err": 1.0,
+     "code": "no_axis",
+     "cause": "no_axis"
+    },
+    {
+     "file": "o0107.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.0085,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "o0114.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.1737,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "o0116.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.002,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "o0119.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.0013,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "o0120.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.1378,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "o0125.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.001,
+     "cause": "ok"
+    },
+    {
+     "file": "o0127.png",
+     "family": "hbar",
+     "degradation": "clean",
+     "err": 0.0014,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "o0131.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.001,
+     "cause": "refused_ok"
+    },
+    {
+     "file": "o0134.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 1.0,
+     "code": "no_axis",
+     "cause": "no_axis"
+    },
+    {
+     "file": "o0140.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 0.1326,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "o0145.png",
+     "family": "stacked_hbar",
+     "degradation": "clean",
+     "err": 1.0,
+     "code": "no_axis",
+     "cause": "no_axis"
+    },
+    {
+     "file": "o0147.png",
+     "family": "line",
+     "degradation": "clean",
+     "err": 1.0,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "o0155.png",
+     "family": "stacked_area",
+     "degradation": "clean",
+     "err": 1.0,
+     "code": "no_marks",
+     "cause": "fail_other"
+    },
+    {
+     "file": "o0157.png",
+     "family": "stacked_area",
+     "degradation": "clean",
+     "err": 0.2016,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "o0161.png",
+     "family": "stacked_bar",
+     "degradation": "clean",
+     "err": 0.0442,
+     "count_ok": false,
+     "cause": "marks"
+    },
+    {
+     "file": "o0169.png",
+     "family": "stacked_bar",
+     "degradation": "clean",
+     "err": 0.0006,
+     "cause": "ok"
+    }
+   ]
+  }
+ },
+ "all": {
+  "n": 480,
+  "causes": {
+   "ok": 210,
+   "refused_ok": 127,
+   "marks": 88,
+   "type": 19,
+   "no_axis": 15,
+   "x_labels": 10,
+   "fail_other": 7,
+   "right_axis": 3,
+   "axis": 1
+  },
+  "read_wrong": 143,
+  "groups_of_wrong_reads": {
+   "labels (no_axis + axis + right_axis + x_labels)": 29,
+   "marks (marks + fail_other)": 95,
+   "type": 19
+  },
+  "right_but_refused": 127
+ }
+}

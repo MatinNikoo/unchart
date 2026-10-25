@@ -1,0 +1,65 @@
+file       type       error  exact  note
+c000.png   line       0.14%  yes    1/1 series
+c001.png   line       0.16%  yes    1/1 series
+c002.png   line       0.28%  yes    3/3 series
+c003.png   line       0.35%  yes    3/3 series
+c004.png   bar        0.17%  yes    8/8 bars
+c005.png   line       0.10%  yes    1/1 series
+c006.png   scatter    0.14%  yes    30/30 points
+c007.png   bar        0.03%  yes    8/8 bars
+c008.png   line       0.34%  no     1/1 series
+c009.png   line       0.57%  no     3/3 series
+c010.png   scatter    0.10%  yes    15/15 points
+c011.png   line       0.28%  yes    1/1 series
+c012.png   line       0.56%  yes    1/1 series
+c013.png   scatter    0.24%  yes    60/60 points
+c014.png   bar        0.06%  yes    8/8 bars
+c015.png   line       1.03%  no     3/3 series
+c016.png   bar        0.08%  yes    12/12 bars
+c017.png   bar        0.56%  yes    8/8 bars
+c018.png   bar        0.06%  yes    8/8 bars
+c019.png   bar        0.36%  yes    4/4 bars
+c020.png   bar        0.12%  yes    4/4 bars
+c021.png   bar        0.11%  yes    8/8 bars
+c022.png   line       0.21%  yes    1/1 series
+c023.png   bar        0.10%  yes    4/4 bars
+c024.png   line       0.32%  yes    1/1 series
+c025.png   line       0.24%  yes    1/1 series
+c026.png   scatter    0.12%  yes    60/60 points
+c027.png   line       0.23%  yes    2/2 series
+c028.png   line       0.11%  yes    1/1 series
+c029.png   line       0.36%  yes    2/2 series
+c030.png   line       0.51%  yes    3/3 series
+c031.png   bar        0.17%  yes    4/4 bars
+c032.png   line       0.52%  yes    1/1 series
+c033.png   bar        0.33%  yes    4/4 bars
+c034.png   line       0.24%  yes    2/2 series
+c035.png   scatter    0.12%  yes    59/60 points
+c036.png   scatter    0.24%  yes    15/15 points
+c037.png   scatter    0.14%  yes    60/60 points
+c038.png   scatter    0.09%  yes    59/60 points
+c039.png   line       0.45%  yes    3/3 series
+c040.png   bar        0.10%  yes    4/4 bars
+c041.png   bar        0.08%  yes    6/6 bars
+c042.png   line       0.38%  yes    1/1 series
+c043.png   bar        0.08%  yes    4/4 bars
+c044.png   line       0.19%  yes    3/3 series
+c045.png   line       0.54%  yes    1/1 series
+c046.png   scatter    0.13%  yes    60/60 points
+c047.png   scatter    0.09%  yes    59/60 points
+c048.png   bar        0.06%  yes    12/12 bars
+c049.png   line       0.26%  yes    1/1 series
+c050.png   line       0.15%  yes    2/2 series
+c051.png   bar        0.11%  yes    12/12 bars
+c052.png   line       0.17%  yes    1/1 series
+c053.png   scatter    0.09%  yes    15/15 points
+c054.png   bar        0.17%  yes    12/12 bars
+c055.png   bar        0.11%  yes    8/8 bars
+c056.png   line       0.41%  yes    1/1 series
+c057.png   line       0.14%  yes    1/1 series
+c058.png   scatter    0.11%  yes    15/15 points
+c059.png   line       0.35%  yes    1/1 series
+line     n=29  median error 0.28%  mean 0.33%  within 2%: 100%  exact count: 90%
+bar      n=19  median error 0.11%  mean 0.15%  within 2%: 100%  exact count: 100%
+scatter  n=12  median error 0.12%  mean 0.14%  within 2%: 100%  exact count: 100%
+ALL      n=60  median error 0.17%  within 2%: 100%  failures: 0

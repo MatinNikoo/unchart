@@ -1,0 +1,7 @@
+Confidence model with and without the redraw features (rr_recall, rr_prec), 5 fold cross validation on the 480 dev charts,
+threshold picked for at most 2% silent wrong. Reads were node replays (--nocal) of the PP-merged OCR cache, then
+python3 bench/calibrate.py <syn> <owid> <families> --dry [--drop ...] with rr_recall and rr_prec added to FEATS.
+[both rr features]        threshold 0.93  silent 0.01875  success 0.33125
+[--drop rr_recall,rr_prec] threshold 0.88  silent 0.01667  success 0.3625
+[--drop rr_prec]          threshold 0.92  silent 0.01875  success 0.37292
+[--drop rr_recall]        threshold 0.90  silent 0.01667  success 0.325

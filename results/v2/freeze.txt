@@ -1,0 +1,9 @@
+Engine v2 frozen 2026-10-23T14:23Z before any v2 test chart was read.
+Calibration fit on: synthetic-dev, real-owid dev split, synthetic-families-dev (node replay, cached OCR).
+857e0d9756fb4e4c  src/engine.js
+8d6dfd1ae7e087bf  src/ocr.js
+330a39910c40f712  src/calibration.json
+60187bfb1e97028f  bench/score.py
+7343a8f59e3e60d1  dataset/synthetic-test2/manifest.json
+7cc59c13733f905b  dataset/synthetic-families-test/manifest.json
+d22484f042d4bed0  dataset/real-owid/manifest.json

@@ -1,0 +1,55 @@
+file       type       error  exact  note
+j000.png   line       0.16%  yes    1/1 series
+j001.png   line       0.12%  yes    2/2 series
+j002.png   bar        0.14%  yes    10/10 bars
+j003.png   line       0.09%  yes    1/1 series
+j004.png   bar        0.15%  yes    7/7 bars
+j005.png   scatter    0.03%  yes    24/24 points
+j006.png   line       0.17%  yes    1/1 series
+j007.png   line       0.13%  yes    2/2 series
+j008.png   bar        0.31%  yes    10/10 bars
+j009.png   line       0.15%  yes    1/1 series
+j010.png   bar        0.15%  yes    7/7 bars
+j011.png   scatter    0.09%  yes    24/24 points
+j012.png   line       0.14%  yes    1/1 series
+j013.png   line       0.08%  yes    2/2 series
+j014.png   bar        0.20%  yes    10/10 bars
+j015.png   line       0.24%  yes    1/1 series
+j016.png   bar        0.11%  yes    7/7 bars
+j017.png   scatter    0.09%  yes    24/24 points
+j018.png   line       0.25%  yes    1/1 series
+j019.png   line       0.06%  yes    2/2 series
+j020.png   bar        0.59%  yes    10/10 bars
+j021.png   line       0.05%  yes    1/1 series
+j022.png   bar        0.09%  yes    7/7 bars
+j023.png   scatter    0.09%  yes    24/24 points
+j024.png   line       0.31%  yes    1/1 series
+j025.png   line       0.12%  yes    2/2 series
+j026.png   bar        0.16%  yes    10/10 bars
+j027.png   line       0.06%  yes    1/1 series
+j028.png   bar        0.13%  yes    7/7 bars
+j029.png   scatter    0.08%  yes    24/24 points
+q000.jpg   line       0.16%  yes    1/1 series
+q001.jpg   line       0.30%  yes    1/1 series
+q002.jpg   line       0.33%  yes    3/3 series
+q003.jpg   line       0.26%  yes    3/3 series
+q004.jpg   bar        0.58%  yes    8/8 bars
+q005.jpg   line       0.15%  yes    1/1 series
+q006.jpg   scatter    0.16%  yes    30/30 points
+q007.jpg   bar        0.46%  yes    8/8 bars
+q008.jpg   line       0.34%  yes    1/1 series
+q009.jpg   line       0.67%  yes    3/3 series
+q010.jpg   scatter    0.30%  yes    14/15 points
+q011.jpg   line       0.33%  yes    1/1 series
+q012.jpg   line       0.85%  yes    1/1 series
+q013.jpg   scatter    0.41%  yes    61/60 points
+q014.jpg   bar        0.12%  yes    8/8 bars
+q015.jpg   line       1.11%  no     3/3 series
+q016.jpg   bar        0.23%  yes    12/12 bars
+q017.jpg   bar        0.74%  yes    8/8 bars
+q018.jpg   bar        0.24%  yes    8/8 bars
+q019.jpg   bar        0.93%  yes    4/4 bars
+line     n=25  median error 0.16%  mean 0.27%  within 2%: 100%  exact count: 96%
+bar      n=17  median error 0.20%  mean 0.31%  within 2%: 100%  exact count: 100%
+scatter  n= 8  median error 0.09%  mean 0.16%  within 2%: 100%  exact count: 100%
+ALL      n=50  median error 0.16%  within 2%: 100%  failures: 0

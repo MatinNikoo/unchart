@@ -1,0 +1,5 @@
+f1632cb3d5fd74554757a5745f5bdbf5bd2d1d27dc29091a1e75b24ccadd070a  src/engine.js
+1eaf5f895fdce14f4cfa6c49b05819d9218e901e79f9ce8f9c944420703582ec  src/ocr.js
+fb7ceeef392535eaced502bf4c28a254d8ffcfca6cd854d130f164de1e397281  src/calibration.json
+# after the freeze: findCharts() returns charts in reading order (PDF and batch only, not on the benchmark path)
+978139e2d713d3920980662a33037e3f6aee10927ad07949554bbd7e430ebeaf  src/engine.js  (after that change)

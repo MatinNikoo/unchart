@@ -1,0 +1,23 @@
+file       type       error  exact  note
+t000.png   bar        0.03%  yes    5/5 bars
+t001.png   bar        0.14%  yes    5/5 bars
+t002.png   bar        0.03%  yes    4/4 bars
+t003.png   bar        0.33%  yes    4/4 bars
+t004.png   bar        0.02%  yes    6/6 bars
+t005.png   bar        0.11%  yes    4/4 bars
+t006.png   bar        0.02%  yes    4/4 bars
+t007.png   bar        0.05%  yes    4/4 bars
+t008.png   bar        0.03%  yes    6/6 bars
+t009.png   bar        0.13%  yes    6/6 bars
+t010.png   bar        0.02%  yes    6/6 bars
+t011.png   bar        0.07%  yes    4/4 bars
+t012.png   bar        0.04%  yes    6/6 bars
+t013.png   bar        0.07%  yes    4/4 bars
+t014.png   bar        0.03%  yes    4/4 bars
+t015.png   bar        0.43%  yes    6/6 bars
+t016.png   bar        0.02%  yes    6/6 bars
+t017.png   bar        0.10%  yes    6/6 bars
+t018.png   bar        0.06%  yes    5/5 bars
+t019.png   bar        0.10%  yes    5/5 bars
+bar      n=20  median error 0.05%  mean 0.09%  within 2%: 100%  exact count: 100%
+ALL      n=20  median error 0.05%  within 2%: 100%  failures: 0
