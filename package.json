@@ -5,8 +5,34 @@
   "description": "Paste a picture of a chart, get the numbers back. Runs in the browser.",
   "scripts": {
     "serve": "python3 -m http.server 8790",
-    "bench": "node run.js && python3 score.py results_charts.json"
+    "test": "node --test test/*.test.js",
+    "test:ui": "node test/ui.js && node test/editor.js",
+    "bench": "node bench/all.js",
+    "bench:score": "node bench/all.js --skip-run",
+    "bench:build": "python3 bench/build.py",
+    "bench:fred": "python3 bench/real/fetch_fred.py",
+    "bench:deplot": "python3 bench/deplot.py",
+    "calibrate": "python3 bench/calibrate.py results/v4/calib_rules/dev_syn_scored.json results/v4/calib_rules/dev_owid_scored.json results/v4/calib_rules/dev_fam_scored.json",
+    "examples": "node precompute.js",
+    "batch": "node bin/unchart.js"
   },
-  "devDependencies": { "playwright": "^1.47.0", "tesseract.js": "5.1.1", "@tesseract.js-data/eng": "1.0.0", "chart.js": "4.4.4" },
-  "license": "MIT"
+  "devDependencies": {
+    "@tesseract.js-data/eng": "1.0.0",
+    "chart.js": "4.4.4",
+    "echarts": "5.5.1",
+    "jpeg-js": "0.4.4",
+    "onnxruntime-web": "^1.22.0",
+    "playwright": "1.56.1",
+    "plotly.js-dist-min": "2.35.2",
+    "pngjs": "7.0.0",
+    "tesseract.js": "5.1.1",
+    "vega": "5.30.0",
+    "vega-lite": "5.21.0",
+    "vega-themes": "2.15.0"
+  },
+  "license": "MIT",
+  "main": "lib/unchart.js",
+  "bin": {
+    "unchart": "bin/unchart.js"
+  }
 }

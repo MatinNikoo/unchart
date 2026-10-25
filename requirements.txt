@@ -1,0 +1,13 @@
+# the versions the results in results/ were made with (Python 3.13)
+# scoring, calibration and the report: bench/score.py, bench/calibrate.py, bench/report.py
+numpy==2.5.3
+scipy==1.18.1
+scikit-learn==1.9.1
+matplotlib==3.11.2
+pillow==12.3.0
+# drawing the synthetic set: bench/build.py
+seaborn==0.13.2
+pandas==3.0.5
+# reading the XLSX export back in the tests
+openpyxl==3.1.5
+# bench/deplot.py also needs torch and transformers (see the top of that file); CI does not install them

@@ -1,0 +1,44 @@
+Unchart is MIT licensed (see LICENSE). It ships and uses the third party components below. Each keeps its own license.
+
+Components in vendor/
+
+pdf.js 3.11.174 (vendor/pdf.min.js, vendor/pdf.worker.min.js)
+  Mozilla Foundation, Apache License 2.0. https://github.com/mozilla/pdf.js
+
+tesseract.js 5.1.1 (vendor/tesseract.min.js, vendor/worker.min.js)
+  Apache License 2.0. https://github.com/naptha/tesseract.js
+  vendor/worker.min.js carries a one line change that fixes a 5.1.1 bug when the language data is passed in directly.
+
+tesseract.js-core 5.1.1, the Tesseract OCR engine compiled to WebAssembly (vendor/core/)
+  Apache License 2.0. https://github.com/naptha/tesseract.js-core, built from https://github.com/tesseract-ocr/tesseract
+
+Tesseract English language data, tessdata_best, 4.0.0 (vendor/lang/eng.js)
+  Apache License 2.0. https://github.com/tesseract-ocr/tessdata_best
+
+onnxruntime-web 1.22.0 (vendor/ort/)
+  Microsoft Corporation, MIT License (vendor/ort/LICENSE). https://github.com/microsoft/onnxruntime
+
+PP-OCRv5 English mobile text recognizer (vendor/pp/en_PP-OCRv5_mobile_rec.onnx, vendor/pp/ppocrv5_en_dict.txt)
+  Trained and released by the PaddlePaddle team (Baidu) as part of PaddleOCR, Apache License 2.0 (vendor/pp/LICENSE).
+  https://github.com/PaddlePaddle/PaddleOCR
+  I did not convert it. The ONNX file comes from the Hugging Face repository monkt/paddleocr-onnx, which lists
+  Apache 2.0 and says the models were converted with paddle2onnx. https://huggingface.co/monkt/paddleocr-onnx
+  The file's sha256 is 4e16deb22c4da6468bdca539b2cd3c8687825538b67109177c47d359ab994cd7.
+
+Unchart mark model (vendor/seg/unchart_marks.onnx)
+  My own small U-Net, trained on charts drawn by this repo's generators. MIT, like the rest of the repo.
+
+Data
+
+Our World in Data charts in dataset/real-owid (a small sample here, the full set in the release zip)
+  Charts and data by Our World in Data, CC BY 4.0, https://ourworldindata.org. Each chart's title, source citation and
+  URL are in dataset/real-owid/truth.json. The underlying data comes from the sources named there, and those sources
+  can carry their own terms. Check them before you reuse a chart or its numbers.
+
+FRED charts are not included. bench/real/fetch_fred.py downloads them for you. Graphs from FRED, Federal Reserve Bank
+of St. Louis.
+
+Development only (not shipped, installed by npm)
+
+chart.js, echarts, plotly.js, vega, vega-lite and vega-themes (BSD, MIT, Apache 2.0 and BSD 3 clause) draw the synthetic
+benchmark charts. playwright (Apache 2.0) drives the browser tests. pngjs (MIT) and jpeg-js (BSD) decode images in node.

@@ -1,0 +1,20 @@
+<!doctype html><html><head><meta charset="utf-8"><script src="node_modules/chart.js/dist/chart.umd.js"></script></head><body style="margin:0;background:#fff">
+<script>
+let s=11;const r=()=>{s=(s*16807)%2147483647;return (s-1)/2147483646};
+window.make=async function(i){
+  const type=['line','line','bar','line','bar','scatter'][i%6];
+  const W=[720,900,1000,640][i%4],H=[400,450,380,420][i%4];
+  const c=document.createElement('canvas');c.width=W;c.height=H;c.style.width=W+'px';c.style.height=H+'px';document.body.innerHTML='';document.body.appendChild(c);
+  const scale=[1,100,5000,1][i%4],off=i%5==0?-0.4:0;
+  const n=type=='bar'?[5,7,10][i%3]:[8,12,24][i%3],k=type=='line'?1+(i%3):1;
+  const labels=type=='bar'?['North','South','East','West','Kiwi','Plum','Fig','Mon','Tue','Wed'].slice(0,n):Array.from({length:n},(_,j)=>String(2000+j+(i%2?10:0)));
+  const cols=['#3366cc','#dc3912','#109618','#ff9900'];
+  const ds=[];const truth=[];
+  for(let q=0;q<k;q++){let v=r();const y=[];for(let j=0;j<n;j++){v=Math.min(1,Math.max(0,v+(r()-.5)*.35));y.push(+((v+off)*scale).toFixed(4))}truth.push(y);
+    ds.push(type=='scatter'?{label:'Set',data:y.map((v,j)=>({x:+(r()*100).toFixed(3),y:v})),backgroundColor:cols[q]}:{label:['Revenue','Users','Cost'][q],data:y,borderColor:cols[q],backgroundColor:cols[q],borderWidth:2,pointRadius:i%2?3:0,tension:0});}
+  const ch=new Chart(c,{type,data:type=='scatter'?{datasets:ds}:{labels,datasets:ds},options:{animation:false,responsive:false,devicePixelRatio:1,plugins:{legend:{display:k>1}},scales:{y:{beginAtZero:type=='bar'}}}});
+  await new Promise(r=>setTimeout(r,50));
+  const t={file:`j${String(i).padStart(3,'0')}.png`,type,scale:'cj',style:'chartjs',x:type=='bar'?labels:type=='scatter'?ds[0].data.map(p=>p.x):labels.map(Number),series:type=='scatter'?[ds[0].data.map(p=>p.y)]:truth};
+  return {png:c.toDataURL('image/png'),truth:t};
+}
+</script></body></html>
