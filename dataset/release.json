@@ -1,0 +1,105 @@
+{
+ "real-owid": [
+  {
+   "zip": "real-owid.zip",
+   "bytes": 11473245,
+   "sha256": "93642d0bbe1947eff577c73f2b0e445df020533f57ba79f823d01e92a1cbf773",
+   "images": 170
+  }
+ ],
+ "synthetic-dev": [
+  {
+   "zip": "synthetic-dev-part1.zip",
+   "bytes": 12249743,
+   "sha256": "b9263e7ed56d57b25c42c6e322e9032cfd1356c6a5cb15c3c1a25d1b002231c5",
+   "images": 158
+  },
+  {
+   "zip": "synthetic-dev-part2.zip",
+   "bytes": 11794472,
+   "sha256": "bfa973eef85cdde0dc97b067e5b50f6172b23a0dbf32caa71460ede224715fd6",
+   "images": 182
+  }
+ ],
+ "synthetic-families-dev": [
+  {
+   "zip": "synthetic-families-dev.zip",
+   "bytes": 6275290,
+   "sha256": "c791b184ea4e08ece4cf1b62bd87c77b371a616647e3ace806af7ff798f008cb",
+   "images": 112
+  }
+ ],
+ "synthetic-families-test": [
+  {
+   "zip": "synthetic-families-test.zip",
+   "bytes": 11249313,
+   "sha256": "480e039d2083f59f20d2cd093d60f12f6b3091361cb0766dae6ccdec97e3770c",
+   "images": 112
+  }
+ ],
+ "synthetic-families-test3": [
+  {
+   "zip": "synthetic-families-test3.zip",
+   "bytes": 10459325,
+   "sha256": "04bcb9304c33f146f228c54a89a9778cdcfae950131f93afce073e60d6af4d45",
+   "images": 112
+  }
+ ],
+ "synthetic-test": [
+  {
+   "zip": "synthetic-test-part1.zip",
+   "bytes": 15989611,
+   "sha256": "823d781a04f6b19f527b7c1fe02dbac775d98eaaa8a67f5a5cb9587dec070be6",
+   "images": 175
+  },
+  {
+   "zip": "synthetic-test-part2.zip",
+   "bytes": 15395764,
+   "sha256": "21687e9d6956b6eb6c025f942abeb6bfadbf3e0302e07ae64cc17bc62522c369",
+   "images": 237
+  },
+  {
+   "zip": "synthetic-test-part3.zip",
+   "bytes": 15651209,
+   "sha256": "337f8112a1ab5d51ab07c858de99dbda3ee1385a02e9961e20251c2b5262b493",
+   "images": 136
+  }
+ ],
+ "synthetic-test2": [
+  {
+   "zip": "synthetic-test2-part1.zip",
+   "bytes": 21672454,
+   "sha256": "6a273e1a58823277c889ad452f1830dfd939b2ddb18eac44b680b7e41e9fb782",
+   "images": 246
+  },
+  {
+   "zip": "synthetic-test2-part2.zip",
+   "bytes": 21469573,
+   "sha256": "54a1ab18e3bfa6ec36076a7b91975d684eed87d9e7f9def9911a6d9275ca4224",
+   "images": 302
+  }
+ ],
+ "synthetic-test3": [
+  {
+   "zip": "synthetic-test3-part1.zip",
+   "bytes": 12451376,
+   "sha256": "149c16ca937a058d2912cca5d8443a4358cd89dba72bb69629b25837a21cea7b",
+   "images": 175
+  },
+  {
+   "zip": "synthetic-test3-part2.zip",
+   "bytes": 12631922,
+   "sha256": "6c5aea7387e36ed150556f048f9e38abb4d6edfd6341500e105317f1f63e21a0",
+   "images": 143
+  }
+ ],
+ "legacy-charts": [
+  {
+   "zip": "legacy-charts.zip",
+   "bytes": 3974946,
+   "sha256": "5d1fcae7764da0e70d249e3caea87efc688d66b09df203397a68dd069f21da15",
+   "images": 131,
+   "root": true
+  }
+ ]
+}
