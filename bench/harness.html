@@ -1,0 +1,26 @@
+<!doctype html><html><head><meta charset="utf-8">
+<script src="../vendor/tesseract.min.js"></script>
+<script src="../src/engine.js"></script><script src="../src/ppocr.js"></script><script src="../src/seg.js"></script><script src="../src/ocr.js"></script></head><body>
+<script>
+const PATHS={workerPath:'/node_modules/tesseract.js/dist/worker.min.js',corePath:'/node_modules/tesseract.js-core/',langPath:'/node_modules/@tesseract.js-data/eng/4.0.0_best_int'};
+// harness.html?pp=0 reads the numbers with tesseract alone (engine v2 behavior)
+if(new URLSearchParams(location.search).get('pp')!=='0')PATHS.pp={ort:'/vendor/ort/ort.wasm.min.js',wasm:'/vendor/ort/',model:'/vendor/pp/en_PP-OCRv5_mobile_rec.onnx',dict:'/vendor/pp/ppocrv5_en_dict.txt'};
+// the mark model is off by default. harness.html?seg=1 turns it on, with the calibration that was fit on its reads
+const useSeg=new URLSearchParams(location.search).get('seg')==='1';
+if(useSeg)PATHS.seg={ort:'/vendor/ort/ort.wasm.min.js',wasm:'/vendor/ort/',model:'/vendor/seg/unchart_marks.onnx'};
+async function load(src){const im=new Image();im.src=src;await im.decode();const c=document.createElement('canvas');c.width=im.naturalWidth;c.height=im.naturalHeight;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(im,0,0);return c}
+// the frozen confidence model and error bar scale, when bench/calibrate.py has made them
+const ready=fetch(useSeg?'/src/calibration_model.json':'/src/calibration.json').then(r=>r.ok?r.json():null).then(w=>{if(w)Unchart.setCalibration(w)}).catch(()=>{});
+const round=v=>typeof v==='number'?+v.toFixed(6):v;
+// runs one chart through the same pipeline the app uses and returns a plain copy of the result
+window.run=async function(src,opts){
+  await ready;
+  const c=await load(src);
+  const {res,words,flat,rot,angle}=await UnchartOCR.readChart(c,PATHS,opts||{});
+  const W=ws=>ws.map(w=>[w.text,Math.round(w.conf),+w.x0.toFixed(1),+w.y0.toFixed(1),+w.x1.toFixed(1),+w.y1.toFixed(1)]);
+  return {ok:res.ok,error:res.error,code:res.code,chartType:res.chartType,confidence:res.confidence,reliable:res.reliable,issues:res.issues,features:res.features,
+    flags:res.flags,axis:res.axis,rect:res.rect,angle,ms_ocr:res.ms_ocr,ms_seg:res.ms_seg,ms_extract:res.ms_total-res.ms_ocr,ms_total:res.ms_total,
+    series:(res.series||[]).map(s=>({type:s.type,name:s.name,color:s.color,axis:s.axis,stacked:s.stacked,points:s.points.map(p=>({x:round(p.x),y:round(p.y),xv:p.xv,px:round(p.px),py:round(p.py),err:p.err&&p.err.map(round),empty:p.empty}))})),
+    words:W(words),flat:W(flat),rot:rot&&Object.fromEntries(Object.entries(rot).map(([k,v])=>[k,W(v)]))};
+}
+</script></body></html>

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Unchart</title>
-<meta name="description" content="Paste a screenshot of a line, bar or dot chart and get the numbers behind it. Runs entirely in your browser.">
+<meta name="description" content="Paste a screenshot of a chart (bars, lines, areas, dots, pies) and get the numbers behind it, with an error bar on each one. Runs entirely in your browser.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap">
@@ -88,6 +88,8 @@ a{color:inherit}
 .frame::after{right:-8px;bottom:-8px;border-left:0;border-top:0}
 .frame canvas{display:block;max-width:100%;height:auto}
 #ov,#sel{position:absolute;inset:0;width:100%;height:100%}
+#loupe{position:absolute;width:132px;height:132px;border-radius:50%;border:2px solid var(--signal);box-shadow:0 6px 24px rgba(0,0,0,.45);pointer-events:none;z-index:5}
+#loupe[hidden]{display:none}
 #sel{cursor:crosshair}
 #src{transition:opacity .25s}
 #src.dim{opacity:.16}
@@ -124,6 +126,7 @@ a{color:inherit}
 .tabs button{flex:1;border:0;background:transparent;height:42px;padding:0 12px;cursor:pointer;font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid transparent;margin-bottom:-1px;white-space:nowrap;display:flex;gap:8px;align-items:center;justify-content:center}
 .tabs button+button{border-left:1px solid var(--line)}
 .tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--signal);background:var(--raised)}
+@media (max-width:560px){.tabs{flex-wrap:wrap;overflow:visible;border-bottom:0}.tabs button{flex:1 1 30%;margin-bottom:0;border-bottom-color:var(--line)}.tabs button+button{border-left:0}.tabs button:not(:first-child):not(:nth-child(4)){border-left:1px solid var(--line)}.tabs button[aria-selected="true"]{border-bottom-color:var(--signal)}}
 .badge{font:500 10px/1 var(--mono);padding:3px 5px;border-radius:2px;background:var(--warn);color:var(--bg);letter-spacing:.06em}
 .badge.ok{background:var(--ok-soft);color:var(--ok)}
 .pane{padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
@@ -161,7 +164,84 @@ td.est{color:var(--muted)}
 .tog,.sel{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
 .tog input{accent-color:var(--signal);width:15px;height:15px}
 .sel select{background:var(--raised);color:var(--fg);border:1px solid var(--line2);border-radius:7px;height:30px;padding:0 8px;font:13px var(--sans)}
-.rcanvas{width:100%;display:block;border:1px solid var(--line)}
+/* chart editor */
+.ed{display:flex;flex-direction:column;gap:12px;min-width:0}
+.edbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.edbar .sel select{max-width:220px}
+.edsp{flex:1}
+.edmain{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;min-width:0}
+.edview{display:flex;flex-direction:column;gap:10px;min-width:0}
+.rprev{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--raised);line-height:0;touch-action:none}
+.rprev svg{width:100%;height:auto;display:block}
+.edhint{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;min-height:1.5em}
+.edhint .k{color:var(--signal)}
+.edpop{border:1px solid var(--line);border-radius:10px;padding:10px 12px 12px;background:var(--bg);max-height:360px;overflow:auto}
+.popt{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.thumb{display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:6px;cursor:pointer;text-align:left;min-width:0}
+.thumb:hover{border-color:var(--fg)}
+.thumb .tsvg{display:block;line-height:0;border-radius:4px;overflow:hidden;background:#fff}
+.thumb .tsvg svg{width:100%;height:auto;display:block}
+.thumb .tname{font:500 11px var(--mono);letter-spacing:.06em;color:var(--muted)}
+.edside{display:flex;flex-direction:column;min-width:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.edtabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+.edtabs button{height:34px;border:0;border-bottom:1px solid var(--line);background:transparent;font:500 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:0 4px}
+.edtabs button+button{border-left:1px solid var(--line)}
+.edtabs button:nth-child(5){border-left:0}
+.edtabs button[aria-selected="true"]{color:var(--fg);background:var(--raised);box-shadow:inset 0 -2px 0 var(--signal)}
+.edpanes{max-height:min(580px,74vh);overflow:auto;overscroll-behavior:contain}
+.grp{border-bottom:1px solid var(--line)}
+.grp:last-child{border-bottom:0}
+.grp>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:10px 14px;font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);user-select:none}
+.grp>summary::-webkit-details-marker{display:none}
+.grp>summary::before{content:"";width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(-45deg);transition:transform .15s;margin-right:2px}
+.grp[open]>summary::before{transform:rotate(45deg)}
+.grp[open]>summary{color:var(--fg)}
+.gb{padding:2px 14px 14px;display:flex;flex-direction:column;gap:9px;min-width:0}
+.row{display:grid;grid-template-columns:minmax(0,8.6em) minmax(0,1fr);gap:4px 10px;align-items:center;font-size:13px;color:var(--muted);min-width:0}
+.row.wide{grid-template-columns:minmax(0,1fr)}
+.row>label:not(.tog){line-height:1.25}
+.row input[type=text],.row select,.row textarea{width:100%;min-width:0;background:var(--raised);color:var(--fg);border:1px solid var(--line2);border-radius:7px;height:30px;padding:0 8px;font:13px var(--sans)}
+.row textarea{height:auto;padding:6px 8px;resize:vertical;line-height:1.4}
+.row input:focus,.row select:focus,.row textarea:focus{border-color:var(--signal);outline:none}
+.nwrap{display:flex;align-items:center;gap:6px;min-width:0}
+.nwrap i{font:normal 11.5px var(--mono);color:var(--dim)}
+.rwrap{display:flex;align-items:center;gap:8px;min-width:0}
+.rwrap input{flex:1;min-width:60px;accent-color:var(--signal)}
+.rwrap output{font:12px var(--mono);color:var(--fg);min-width:3.4ch;text-align:right}
+.cwrap{display:flex;align-items:center;gap:8px}
+.cwrap input[type=color]{width:42px;height:30px;padding:2px;border:1px solid var(--line2);border-radius:7px;background:var(--raised);cursor:pointer}
+.chip.tiny{height:24px;padding:0 8px;font-size:11.5px}
+.fwrap{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
+.fwrap input{font-family:var(--mono)!important;font-size:12px!important}
+.seg.s button{height:26px;padding:0 8px;font-size:10.5px}
+.btnrow{display:flex;gap:6px;flex-wrap:wrap}
+.row.wide .btn{height:32px}
+.fhead{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--fg);padding-bottom:2px}
+.thlist{display:flex;flex-direction:column;gap:6px}
+.throw{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--fg)}
+.throw span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.types{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:6px}
+.tbtn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px 6px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--muted);cursor:pointer;min-width:0}
+.tbtn svg{width:34px;height:26px}
+.tbtn span{font:500 9.5px/1.15 var(--mono);letter-spacing:.04em;text-align:center;text-transform:uppercase}
+.tbtn:hover{color:var(--fg);border-color:var(--line2)}
+.tbtn[aria-pressed="true"]{color:var(--fg);border-color:var(--signal);background:var(--signal-soft)}
+.serlist{display:flex;flex-direction:column;gap:6px;width:100%;max-height:300px;overflow:auto}
+.serrow{display:grid;grid-template-columns:28px minmax(0,1fr) auto 18px 26px 26px;gap:6px;align-items:center}
+.serrow input[type=color]{width:28px;height:28px;padding:0;border:1px solid var(--line2);border-radius:6px;background:none;cursor:pointer}
+.serrow input[type=text]{min-width:0;background:var(--raised);color:var(--fg);border:1px solid var(--line2);border-radius:7px;height:28px;padding:0 8px;font:13px var(--sans)}
+.serrow input[type=checkbox]{accent-color:var(--signal);width:15px;height:15px}
+.serrow button{height:28px;min-width:26px;border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:6px;cursor:pointer;font-size:12px;padding:0 6px}
+.serrow button:hover:not(:disabled){color:var(--fg);border-color:var(--line2)}
+.serrow button:disabled{opacity:.35;cursor:default}
+#a11y{display:flex;flex-direction:column;gap:8px}
+#a11y .check{padding:10px 12px}
+.ed.big{position:fixed;inset:0;z-index:60;background:var(--surface);padding:14px;overflow:auto}
+.ed.big .edmain{grid-template-columns:minmax(0,1fr) minmax(320px,390px);align-items:start}
+.ed.big .edview{position:sticky;top:0}
+.ed.big .edpanes{max-height:calc(100vh - 150px)}
+@media (max-width:860px){.ed.big .edmain{grid-template-columns:minmax(0,1fr)}.ed.big .edview{position:static}.ed.big .edpanes{max-height:60vh}}
 .fixbtn{margin-top:8px}
 #sel.grab{cursor:grab}#sel.grabbing{cursor:grabbing}
 pre.code{margin:0;background:var(--bg);border:1px solid var(--line);padding:12px;font:400 12px/1.55 var(--mono);overflow:auto;max-height:300px;white-space:pre;color:var(--fg)}
@@ -183,16 +263,33 @@ pre.code{margin:0;background:var(--bg);border:1px solid var(--line);padding:12px
 .toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:9px 14px;border-radius:7px;font:500 13px var(--sans);z-index:10}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
 
-.console,.below,.drop,.err,.check,.card,.tablebox,pre.code,.rcanvas,.kpis{border-radius:10px}
+.console,.below,.drop,.err,.check,.card,.tablebox,pre.code,.kpis{border-radius:10px}
 .console{overflow:hidden}.below{overflow:hidden;border-top:1px solid var(--line);margin-top:14px}
 .frame canvas#src{border-radius:6px}
+
+/* editing, confidence, help */
+.kpis{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media (max-width:640px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpis div:nth-child(odd){border-left:0}.kpis div:nth-child(n+3){border-top:1px solid var(--line)}}
+.kpis .lowconf b{color:var(--warn)}
+.tb.edit{border-top:1px solid var(--line);border-bottom:0}
+.tb.edit .sp{flex:1}
+.chip:disabled{opacity:.4;cursor:default}
+#sel.tool{cursor:crosshair}
+.calibform{position:absolute;transform:translate(-50%,12px);z-index:5;display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--surface);border:1px solid var(--signal);border-radius:7px;padding:8px 10px;line-height:1.4;font-size:12.5px;color:var(--muted)}
+.calibform input:not([type]),input.num{width:7em;height:30px;background:var(--raised);color:var(--fg);border:1px solid var(--line2);border-radius:7px;padding:0 8px;font:13px var(--mono)}
+td.pm{color:var(--muted);font-size:11.5px}
+table.mini{font-size:12px}
+table.mini th,table.mini td{padding:6px 10px}
+.help{position:fixed;right:clamp(16px,3vw,36px);bottom:calc(70px + env(safe-area-inset-bottom,0px));z-index:11;width:min(380px,calc(100vw - 32px));background:var(--surface);border:1px solid var(--line2);border-radius:10px;padding-bottom:12px}
+.help{max-height:min(70vh,560px);overflow:auto}
+.help .kv{padding:12px 14px 0;grid-template-columns:minmax(0,8em) minmax(0,1fr)}
 </style>
 </head><body>
 
 <div class="wrap">
   <header class="hud">
     <span class="mark">UN<b>/</b>CHART</span>
-    <span class="k hide-s">Chart to data, version 1</span>
+    <span class="k hide-s">Chart to data</span>
     <span class="sp"></span>
     <span class="k live" title="Reading and tracing run in this tab. Your image is never uploaded."><i></i>Local only, nothing uploaded</span>
     <a class="k hide-s" href="https://github.com/MatinNikoo/unchart" target="_blank" rel="noopener">Source</a>
@@ -201,8 +298,8 @@ pre.code{margin:0;background:var(--bg);border:1px solid var(--line);padding:12px
   <section class="hero">
     <div>
       <h1>Get the numbers back out of <i>a chart.</i></h1>
-      <p><b>Paste a screenshot and get the numbers back.</b> Unchart reads the axes, traces every line, bar and dot, and tells you when a chart is built to mislead. About a second, right in your browser.</p>
-      <div class="keys"><span><kbd>⌘V</kbd> or <kbd>Ctrl V</kbd> to paste</span><span>Drop an image or PDF</span><span>Drag a box to read part of it</span></div>
+      <p><b>Paste a screenshot and get the numbers back.</b> Unchart reads the axes, traces every line, bar, slice and dot, puts an error bar on each number, says so when it is not sure, and tells you when a chart is built to mislead. Takes about 3 seconds, right in your browser.</p>
+      <div class="keys"><span><kbd>⌘V</kbd> or <kbd>Ctrl V</kbd> to paste</span><span>Drop an image or PDF</span><span>Drag a box to read part of it</span><span><kbd>?</kbd> for shortcuts</span></div>
     </div>
     <div class="object" aria-hidden="true">
       <div class="melt ink"></div><div class="melt"></div>
@@ -224,19 +321,35 @@ pre.code{margin:0;background:var(--bg);border:1px solid var(--line);padding:12px
         <button class="chip" type="button" data-ex="ex_line.png" aria-pressed="true"><img src="examples/ex_line.png" alt="">Sales</button>
         <button class="chip" type="button" data-ex="ex_bars.png" aria-pressed="false"><img src="examples/ex_bars.png" alt="">Store scores</button>
         <button class="chip" type="button" data-ex="ex_dots.png" aria-pressed="false"><img src="examples/ex_dots.png" alt="">Ad spend</button>
+        <button class="chip" type="button" data-ex="ex_pie.png" aria-pressed="false"><img src="examples/ex_pie.png" alt="">Traffic</button>
+        <button class="chip" type="button" data-ex="ex_hbars.png" aria-pressed="false"><img src="examples/ex_hbars.png" alt="">Hours</button>
+        <button class="chip" type="button" data-ex="ex_rates.png" aria-pressed="false"><img src="examples/ex_rates.png" alt="">Rates</button>
         <span class="hint" id="pdfnav" hidden></span>
       </div>
       <div class="stagebox" id="box">
         <div class="frame" id="frame">
           <span class="tag" id="extag">EXAMPLE · MADE UP DATA</span>
-          <canvas id="src"></canvas><canvas id="ov"></canvas><canvas id="sel"></canvas>
+          <canvas id="src"></canvas><canvas id="ov"></canvas><canvas id="sel"></canvas><canvas id="loupe" hidden aria-hidden="true"></canvas>
           <div class="scan" id="scan" hidden></div>
           <div class="tip" id="tip" hidden></div>
           <button class="btn go cropgo" id="cropgo" type="button" hidden>Read this area</button>
+          <div class="calibform" id="calibform" hidden><label for="calibIn" id="calibLab">Value at this tick</label><input id="calibIn" inputmode="decimal" autocomplete="off"><label class="tog"><input type="checkbox" id="calibLog"> log axis</label><button class="btn go" type="button" id="calibOk">Set</button></div>
         </div>
         <div class="drop" id="drop" hidden><b>Let go to read it</b><span class="k">image or PDF</span></div>
       </div>
       <div class="readline" id="readline"><span id="xy">Move over the chart to measure any point</span><span class="sp"></span><span>Drag a point to fix it, or drag empty space to read part of the image</span></div>
+      <div class="tb edit" id="editbar" role="toolbar" aria-label="Fix the reading">
+        <button class="chip" type="button" data-mode="add" aria-pressed="false" id="addPt" title="Add a point (A)">Add point</button>
+        <button class="chip" type="button" id="delPt" title="Delete the picked point (Delete)">Delete point</button>
+        <label class="sel">Series <select id="ptSeries" aria-label="Series of the picked point"></select></label>
+        <span class="k" id="pickInfo"></span>
+        <span class="sp"></span>
+        <button class="chip" type="button" data-mode="calib" aria-pressed="false" title="Set the axis by clicking two ticks (F)">Fix axis</button>
+        <button class="chip" type="button" data-mode="warp" aria-pressed="false" title="Straighten a photo of a screen or a printout">Straighten photo</button>
+        <button class="chip" type="button" id="undo" title="Undo (Ctrl Z)">Undo</button>
+        <button class="chip" type="button" id="redo" title="Redo (Ctrl Shift Z)">Redo</button>
+        <button class="chip" type="button" id="helpBtn" title="Keyboard shortcuts (?)">?</button>
+      </div>
       <div class="pipe" id="pipe" aria-live="polite">
         <div data-s="read"><span class="k">Read labels</span><s></s></div>
         <div data-s="axes"><span class="k">Fit axes</span><s></s></div>
@@ -246,14 +359,21 @@ pre.code{margin:0;background:var(--bg);border:1px solid var(--line);padding:12px
     </section>
 
     <section class="col" aria-label="Output">
-      <div class="phead"><span class="n">02</span><span class="k">Output</span></div>
+      <div class="phead"><span class="n">02</span><span class="k">Output</span><span class="sp"></span>
+        <label class="sel">Read as <select id="rType">
+          <option value="auto">Auto</option><option value="bar">Bars</option><option value="hbar">Horizontal bars</option><option value="grouped_bar">Grouped bars</option>
+          <option value="stacked_bar">Stacked bars</option><option value="stacked_hbar">Stacked horizontal bars</option><option value="histogram">Histogram</option>
+          <option value="line">Line</option><option value="step">Steps</option><option value="area">Area</option><option value="stacked_area">Stacked area</option>
+          <option value="scatter">Dots</option><option value="pie">Pie</option><option value="donut">Donut</option><option value="bar_line">Bars and line</option></select></label>
+      </div>
       <div class="kpis">
         <div><span class="k">Chart</span><b id="sType">Line</b></div>
         <div><span class="k">Series</span><b id="sSeries">2</b></div>
         <div><span class="k">Points</span><b id="sPoints">20</b></div>
         <div><span class="k">Y axis</span><b id="sRange">2 to 12</b></div>
+        <div><span class="k">Confidence</span><b id="sConf">-</b></div>
       </div>
-      <div class="tabs" role="tablist">
+      <div class="tabs" role="tablist" id="tabs">
         <button role="tab" id="tData" aria-selected="true" aria-controls="pData">Data</button>
         <button role="tab" id="tIns" aria-selected="false" aria-controls="pIns">Reading</button>
         <button role="tab" id="tRem" aria-selected="false" aria-controls="pRem">Remake</button>
@@ -263,25 +383,42 @@ pre.code{margin:0;background:var(--bg);border:1px solid var(--line);padding:12px
       <div class="pane" id="pData" role="tabpanel">
         <div id="errbox"></div>
         <div class="tablebox"><table id="table"></table></div>
+        <div class="rctl">
+          <label class="tog"><input type="checkbox" id="showErr"> Show error bars (±)</label>
+          <label class="sel">Numbers <select id="numStyle"><option value="us">1,234.5</option><option value="eu">1.234,5</option></select></label>
+          <span class="rctl" id="stepRow" hidden><label class="sel" for="stepIn">Resample every</label><input class="num" id="stepIn" inputmode="decimal" placeholder="1"><button class="chip" type="button" id="stepGo">Apply</button></span>
+        </div>
         <div class="acts">
           <button class="btn go" type="button" id="copySheets"><svg viewBox="0 0 16 16"><rect x="5" y="5" width="8.5" height="8.5"/><path d="M11 5V2.5H2.5V11H5"/></svg>Copy for Sheets or Excel</button>
           <button class="btn" type="button" id="dlCsv">Download CSV</button>
+          <button class="btn" type="button" id="dlXlsx">Download XLSX</button>
         </div>
-        <p class="hint">Fix anything by clicking a number or name here, or by dragging the point on the chart.</p>
+        <p class="hint">Fix anything by clicking a number or name here, or by dragging the point on the chart. Each ± is a 95% error bar from the pixel size and the axis fit.</p>
       </div>
-      <div class="pane" id="pIns" role="tabpanel" hidden><div class="cards" id="cards"></div><p class="hint">Worked out from the table, so your edits change it.</p></div>
+      <div class="pane" id="pIns" role="tabpanel" hidden><div class="cards" id="cards"></div><p class="hint">Worked out from the table, so your edits change it.</p>
+        <div class="rctl"><label class="tog"><input type="checkbox" id="useModel"> Experimental mark model</label></div>
+        <p class="hint">A small neural net that finds the series instead of the color rules. It fixes some charts and breaks others, and on my test sets it was a wash, so it is off. Turning it on reads the picture again and loads a 3 MB file the first time.</p></div>
       <div class="pane" id="pRem" role="tabpanel" hidden>
-        <div class="rctl">
-          <div class="seg" role="group" aria-label="Chart type"><button type="button" data-rt="line" aria-pressed="true">Line</button><button type="button" data-rt="area" aria-pressed="false">Area</button><button type="button" data-rt="bar" aria-pressed="false">Bars</button></div>
-          <div class="seg" role="group" aria-label="Look"><button type="button" data-rth="light" aria-pressed="true">Clean</button><button type="button" data-rth="dark" aria-pressed="false">Dark</button><button type="button" data-rth="print" aria-pressed="false">Print</button></div>
+        <div class="ed" id="ed">
+          <div class="edbar">
+            <label class="sel">Element <select id="edSel" aria-label="Chart element to format"></select></label>
+            <span class="edsp"></span>
+            <button class="chip" type="button" id="rUndo" disabled title="Undo (Ctrl Z)">Undo</button><button class="chip" type="button" id="rRedo" disabled title="Redo (Ctrl Shift Z)">Redo</button>
+            <button class="chip" type="button" id="rBig" aria-pressed="false" title="More room to work">Full screen</button>
+          </div>
+          <div class="edmain">
+            <div class="edview">
+              <div class="rprev" id="rPrev" aria-label="The chart redrawn from the recovered numbers"></div>
+              <p class="hint edhint" id="edHintRow"><span class="k">Picked</span><span id="edHint"></span></p>
+              <div class="edpop" id="edPop" hidden></div>
+              <p class="hint" id="rNote"></p>
+            </div>
+            <div class="edside">
+              <div class="edtabs" role="tablist" id="edTabs" aria-label="Editor sections"></div>
+              <div class="edpanes" id="edPanes" role="tabpanel"></div>
+            </div>
+          </div>
         </div>
-        <div class="rctl">
-          <label class="tog"><input type="checkbox" id="rZero" checked> Start the axis at zero</label>
-          <label class="sel">Projection <select id="rTrend"><option value="off">Off</option><option value="linear">Straight line</option><option value="growth">Steady growth</option></select></label>
-        </div>
-        <canvas id="rc" class="rcanvas" aria-label="The chart redrawn from the recovered numbers"></canvas>
-        <p class="hint" id="rNote"></p>
-        <div class="acts"><button class="btn go" type="button" id="rCopy">Copy image</button><button class="btn" type="button" id="rSave">Download PNG</button></div>
       </div>
       <div class="pane" id="pHon" role="tabpanel" hidden><div class="cards" id="checks"></div></div>
       <div class="pane" id="pExp" role="tabpanel" hidden>
@@ -290,11 +427,14 @@ pre.code{margin:0;background:var(--bg);border:1px solid var(--line);padding:12px
           <button class="chip" type="button" data-f="csv" aria-pressed="false">CSV</button>
           <button class="chip" type="button" data-f="pandas" aria-pressed="false">Python</button>
           <button class="chip" type="button" data-f="r" aria-pressed="false">R</button>
+          <button class="chip" type="button" data-f="xlsx" aria-pressed="false">XLSX</button>
           <button class="chip" type="button" data-f="md" aria-pressed="false">Markdown</button>
+          <button class="chip" type="button" data-f="latex" aria-pressed="false">LaTeX</button>
           <button class="chip" type="button" data-f="json" aria-pressed="false">JSON</button>
         </div>
         <pre class="code" id="code"></pre>
-        <div class="acts"><button class="btn go" type="button" id="copyCode">Copy</button></div>
+        <label class="tog"><input type="checkbox" id="exErr"> Include error bars</label>
+        <div class="acts"><button class="btn go" type="button" id="copyCode">Copy</button><button class="btn" type="button" id="dlFile">Download file</button></div>
       </div>
     </section>
   </main>
@@ -306,345 +446,39 @@ pre.code{margin:0;background:var(--bg);border:1px solid var(--line);padding:12px
     <div><span class="k" style="color:var(--signal)">04 Check</span><b>Check the chart</b><p>Bars that skip zero, two y axes, log scales and zoomed axes, with what each does to your read.</p></div>
   </section>
 
-  <section class="proof" aria-label="Test results">
-    <div><span class="k">Charts tested</span><b>130</b></div>
-    <div><span class="k">Worst error on any chart</span><b>0.9%</b></div>
-    <div><span class="k">Median error</span><b>0.17%</b></div>
-    <div><span class="k">Skipped zero axes caught</span><b>10 of 10</b></div>
-    <div><span class="k">Time per chart</span><b>~1 s</b></div>
+  <section class="proof" aria-label="Test results" id="proof">
+    <div><span class="k">Held out charts</span><b>618</b></div>
+    <div><span class="k">Read right, by set</span><b>40 to 70%</b></div>
+    <div><span class="k">Refused, by set</span><b>39 to 81%</b></div>
+    <div><span class="k">Wrong but marked reliable</span><b>1.7 to 7.5%</b></div>
+    <div><span class="k">Median time per chart</span><b>3.2 s</b></div>
   </section>
-  <footer class="foot"><span>Built by <a href="https://matinnikoo.github.io">Matin Nikoomanzar</a></span><span>Test charts come from matplotlib, Chart.js and compressed screenshots, each with known numbers.</span><span>Example charts use made up data.</span></footer>
+  <footer class="foot"><span>Built by <a href="https://matinnikoo.github.io">Matin Nikoomanzar</a></span><span>Tested on 618 held out charts with known numbers, drawn with six charting libraries and three spreadsheet and slide looks, plus Our World in Data and FRED charts. Numbers are for the default reader and the full tables are in the README.</span><span>Example charts use made up data.</span></footer>
 </div>
-<div class="toast" id="toast" hidden></div>
+<div class="toast" id="toast" role="status" hidden></div>
+<div class="help" id="help" hidden role="dialog" aria-label="Keyboard shortcuts">
+  <div class="phead"><span class="k">Keyboard</span><span class="sp"></span><button class="chip" type="button" id="helpClose">Close</button></div>
+  <dl class="kv">
+    <dt>Ctrl V</dt><dd>Paste a chart</dd><dt>Ctrl Z</dt><dd>Undo</dd><dt>Ctrl Shift Z</dt><dd>Redo</dd>
+    <dt>A</dt><dd>Add points by clicking</dd><dt>F</dt><dd>Fix the axis with two clicks</dd>
+    <dt>Delete</dt><dd>Delete the picked point</dd><dt>Arrows</dt><dd>Nudge the picked point, Shift for 10 px</dd>
+    <dt>1 to 5</dt><dd>Switch tabs</dd><dt>C</dt><dd>Copy the table for a spreadsheet</dd><dt>Esc</dt><dd>Cancel</dd>
+    <dt>Remake tab</dt><dd class="k">Chart editor</dd><dt>[ and ]</dt><dd>Pick the previous or next element</dd><dt>Ctrl Shift C, V</dt><dd>Copy and paste a format</dd><dt>Ctrl D</dt><dd>Duplicate a text box or shape</dd><dt>Delete</dt><dd>Remove the picked text box, line, legend or series</dd><dt>Arrows</dt><dd>Nudge a picked text box, Shift for 10 px</dd><dt>Esc</dt><dd>Pick the whole chart, or close a gallery</dd>
+  </dl>
+</div>
 
 <script src="vendor/tesseract.min.js"></script>
 <script src="src/engine.js"></script>
+<script src="src/ppocr.js"></script>
+<script src="src/seg.js"></script>
 <script src="src/ocr.js"></script>
+<script src="src/style.js"></script>
+<script src="src/presets.js"></script>
 <script src="src/remake.js"></script>
+<script src="src/export.js"></script>
+<script src="src/editor.js"></script>
 <script src="examples/precomputed.js"></script>
-<script>
-(function(){
-'use strict';
-const $=id=>document.getElementById(id);
-const abs=p=>new URL(p,location.href).href;
-const PATHS={workerPath:abs('vendor/worker.min.js'),corePath:abs('vendor/core/'),langFile:'vendor/lang/eng.js',workerBlobURL:false,cacheMethod:'none'};
-const src=$('src'),ov=$('ov'),sel=$('sel');
-const S={canvas:null,res:null,crop:null,view:'both',fmt:'tsv',table:null,hl:-1,pdf:null,page:1,fit:null,cross:null};
-const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-const fmt=v=>typeof v==='number'?Unchart.fmt(v):v;
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
-
-// ---------- loading ----------
-function toCanvas(img){const c=document.createElement('canvas');c.width=img.naturalWidth||img.width;c.height=img.naturalHeight||img.height;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(img,0,0);return c}
-function loadURL(u){return new Promise((ok,no)=>{const im=new Image();im.onload=()=>ok(toCanvas(im));im.onerror=no;im.src=u})}
-const isPDF=b=>b.type==='application/pdf'||/\.pdf$/i.test(b.name||'');
-async function loadBlob(b){if(isPDF(b))return loadPDF(b);const u=URL.createObjectURL(b);try{return await loadURL(u)}finally{URL.revokeObjectURL(u)}}
-let pdfReady=null;
-function pdfLib(){if(!pdfReady)pdfReady=new Promise((ok,no)=>{const s=document.createElement('script');s.src='vendor/pdf.min.js';s.onload=()=>{pdfjsLib.GlobalWorkerOptions.workerSrc=abs('vendor/pdf.worker.min.js');ok(pdfjsLib)};s.onerror=no;document.head.appendChild(s)});return pdfReady}
-async function loadPDF(b){const lib=await pdfLib();S.pdf=await lib.getDocument({data:await b.arrayBuffer()}).promise;S.page=1;return renderPage()}
-async function renderPage(){
-  const pg=await S.pdf.getPage(S.page),vp=pg.getViewport({scale:2});
-  const c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);
-  await pg.render({canvasContext:g,viewport:vp}).promise;
-  const nav=$('pdfnav');nav.hidden=false;
-  nav.innerHTML=`Page ${S.page} of ${S.pdf.numPages} <button class="chip" type="button" id="pp">Previous</button> <button class="chip" type="button" id="pn">Next</button>`;
-  $('pp').onclick=async()=>{if(S.page>1){S.page--;show(await renderPage(),null);waiting('Drag a box around the chart on this page.')}};
-  $('pn').onclick=async()=>{if(S.page<S.pdf.numPages){S.page++;show(await renderPage(),null);waiting('Drag a box around the chart on this page.')}};
-  return c;
-}
-
-// ---------- stage ----------
-function show(canvas,res){
-  S.canvas=canvas;S.crop=null;S.res=res;S.fit=null;
-  src.width=ov.width=sel.width=canvas.width;src.height=ov.height=sel.height=canvas.height;
-  src.getContext('2d').drawImage(canvas,0,0);
-  sel.getContext('2d').clearRect(0,0,sel.width,sel.height);$('cropgo').hidden=true;
-  if(res)fitAxes();drawOverlay(1);if(res)renderAll();
-}
-function waiting(msg){setSteps({});clearReadout();$('errbox').innerHTML=`<div class="err"><b>${esc(msg)}</b>It reads as soon as you let go.</div>`;$('time').textContent=''}
-function clearReadout(){$('table').innerHTML='';$('cards').innerHTML='';$('checks').innerHTML='';$('code').textContent='';['sType','sSeries','sPoints','sRange'].forEach(i=>$(i).textContent='–');$('honBadge').textContent='–';$('honBadge').className='badge ok'}
-function fitAxes(){const R=S.res;if(!R||!R.ok)return;S.fit={y:Unchart.fitAxis(R.calib.y),x:R.calib.x&&R.calib.x.length>=2?Unchart.fitAxis(R.calib.x):null}}
-
-function drawOverlay(t){
-  const g=ov.getContext('2d');g.clearRect(0,0,ov.width,ov.height);
-  const R=S.res;src.className=S.view==='rebuilt'?'dim':'';
-  if(!R||!R.ok||S.view==='orig')return;
-  const off=S.crop?[S.crop.x,S.crop.y]:[0,0],k=Math.max(1,ov.width/900),rect=R.rect;
-  g.save();g.translate(off[0],off[1]);
-  g.beginPath();g.rect(-off[0],-off[1],rect.left+(rect.right-rect.left+40)*t+off[0],ov.height);g.clip();
-  const sig=css('--signal');
-  g.lineWidth=1.2*k;g.strokeStyle=sig;g.globalAlpha=.85;
-  for(const q of R.calib.y||[]){g.beginPath();g.moveTo(rect.left-3,q.p);g.lineTo(rect.left+9*k,q.p);g.stroke()}
-  for(const q of R.calib.x||[]){g.beginPath();g.moveTo(q.p,rect.bottom+3);g.lineTo(q.p,rect.bottom-9*k);g.stroke()}
-  g.globalAlpha=1;
-  // the crosshair while measuring
-  if(S.cross&&t>=1){g.save();g.setLineDash([4*k,4*k]);g.lineWidth=1*k;g.strokeStyle='rgba(20,20,20,.55)';
-    g.beginPath();g.moveTo(rect.left,S.cross[1]);g.lineTo(rect.right,S.cross[1]);g.moveTo(S.cross[0],rect.top);g.lineTo(S.cross[0],rect.bottom);g.stroke();g.restore()}
-  R.series.forEach(s=>{
-    const P=s.points.filter(p=>p.px!=null&&p.py!=null);
-    g.strokeStyle=sig;g.fillStyle=sig;g.lineWidth=2.4*k;
-    if(s.type==='line'){
-      g.beginPath();P.forEach((p,i)=>i?g.lineTo(p.px,p.py):g.moveTo(p.px,p.py));g.stroke();
-      P.forEach(p=>{g.beginPath();g.rect(p.px-3.4*k,p.py-3.4*k,6.8*k,6.8*k);g.fillStyle='#fff';g.fill();g.stroke()});
-    }else if(s.type==='bar'){
-      P.forEach(p=>{if(p.empty)return;const b=p.box;g.globalAlpha=.18;g.fillRect(b[0],b[1],b[2]-b[0]+1,b[3]-b[1]+1);g.globalAlpha=1;g.strokeRect(b[0],b[1],b[2]-b[0]+1,b[3]-b[1]+1);
-        g.beginPath();g.moveTo(b[0]-5*k,p.py);g.lineTo(b[2]+5*k,p.py);g.lineWidth=3*k;g.stroke();g.lineWidth=2.4*k});
-    }else{
-      const r=Math.max(4,(s.size||4)*.75)*k*.6+3;P.forEach(p=>{g.beginPath();g.arc(p.px,p.py,r,0,7);g.stroke()});
-    }
-  });
-  if(S.hl>=0&&S.table){const row=S.table.rows[S.hl];if(row)for(const p of row.pts){if(!p)continue;g.beginPath();g.arc(p.px,p.py,9*k,0,7);g.lineWidth=2*k;g.strokeStyle='#111';g.stroke()}}
-  g.restore();
-}
-function reveal(){
-  const sc=$('scan'),t0=performance.now(),D=matchMedia('(prefers-reduced-motion: reduce)').matches?1:1000;sc.hidden=false;
-  (function f(){const t=Math.min(1,(performance.now()-t0)/D),e=1-Math.pow(1-t,3);drawOverlay(e);
-    const R=S.res;if(R&&R.ok){const off=S.crop?S.crop.x:0;sc.style.left=Math.min(100,(off+R.rect.left+(R.rect.right-R.rect.left+40)*e)/ov.width*100)+'%'}
-    if(t<1)requestAnimationFrame(f);else sc.hidden=true})();
-}
-
-// ---------- running ----------
-function setSteps(st){document.querySelectorAll('#pipe>div').forEach(el=>{el.className=st[el.dataset.s]||''})}
-let firstRun=true;
-async function run(canvas,crop){
-  $('extag').hidden=true;
-  const c=crop?(()=>{const k=document.createElement('canvas');k.width=crop.w;k.height=crop.h;k.getContext('2d').drawImage(canvas,crop.x,crop.y,crop.w,crop.h,0,0,crop.w,crop.h);return k})():canvas;
-  S.crop=crop||null;S.res=null;S.fit=null;drawOverlay(0);$('errbox').innerHTML='';
-  const t0=performance.now();setSteps({read:'on'});
-  $('time').textContent=firstRun?'Loading reader, first time only':'';
-  const sc=$('scan');sc.hidden=false;const st=performance.now();
-  (function tick(){if(sc.hidden)return;const x=(performance.now()-st)/1300%1;sc.style.left=((crop?crop.x:0)+x*c.width)/S.canvas.width*100+'%';requestAnimationFrame(tick)})();
-  let words;
-  try{words=await UnchartOCR.readWords(c,PATHS)}catch(e){sc.hidden=true;setSteps({read:'bad'});fail('The text reader could not start.',String(e.message||e));return}
-  firstRun=false;sc.hidden=true;setSteps({read:'done',axes:'on'});await new Promise(r=>setTimeout(r,40));
-  let res;try{res=Unchart.extract(c.getContext('2d').getImageData(0,0,c.width,c.height),words)}catch(e){res={ok:false,error:'Something broke while tracing. '+e.message}}
-  const ms=performance.now()-t0;
-  if(!res.ok){setSteps({read:'done',axes:'bad'});fail(res.error,'Drag a tighter box around just the chart, with its axis numbers inside it.');return}
-  S.res=res;fitAxes();setSteps({read:'done',axes:'done',trace:'done',check:'done'});
-  $('time').textContent=`${(ms/1000).toFixed(1)} s`;
-  renderAll();reveal();
-}
-function fail(title,detail){S.res=null;clearReadout();$('errbox').innerHTML=`<div class="err"><b>${esc(title)}</b>${esc(detail||'')}</div>`;$('time').textContent='';drawOverlay(0);select('tData')}
-
-// ---------- readout ----------
-function buildTable(R){
-  const keys=new Map(),series=R.series;let dup=0;
-  series.forEach((s,si)=>s.points.forEach(p=>{const k=typeof p.x==='number'?+p.x.toFixed(6):p.x;
-    if(!keys.has(k))keys.set(k,{x:k,vals:Array(series.length).fill(null),pts:Array(series.length).fill(null),px:p.px});
-    const r=keys.get(k);if(r.vals[si]==null){r.vals[si]=p.y;r.pts[si]=p}else keys.set('dup'+(dup++),{x:k,vals:series.map((_,j)=>j===si?p.y:null),pts:series.map((_,j)=>j===si?p:null),px:p.px})}));
-  const scatter=series.every(s=>s.type==='scatter'),rows=[...keys.values()];
-  rows.sort((a,b)=>scatter?(a.x-b.x):(a.px-b.px));
-  return {cols:series.map(s=>({name:s.name,color:s.color})),rows,xName:scatter||R.axis.xNumeric?'x':'Category'};
-}
-function renderAll(){
-  const R=S.res;if(!R||!R.ok)return;
-  S.table=buildTable(R);const span=Math.abs(R.axis.yRange[1]-R.axis.yRange[0])||1;S.span=span;S.dec=Math.max(0,Math.min(6,2-Math.floor(Math.log10(span))));
-  const types=[...new Set(R.series.map(s=>s.type))];
-  $('sType').textContent=types.map(t=>({line:'Line',bar:'Bars',scatter:'Dots'})[t]).join(' + ');
-  $('sSeries').textContent=R.series.length;
-  $('sPoints').textContent=R.series.reduce((a,s)=>a+s.points.length,0);
-  const lv=(R.calib.y||[]).map(q=>q.v),lo=lv.length?Math.min(...lv):R.axis.yRange[0],hi=lv.length?Math.max(...lv):R.axis.yRange[1];
-  $('sRange').innerHTML=`${esc(fmt(lo))} to ${esc(fmt(hi))}${R.axis.yPct?'<small>%</small>':''}${R.axis.yLog?'<small>log</small>':''}`;
-  renderTable();renderInsights();renderChecks();renderCode();defaultRemake();renderRemake();
-}
-function numStr(v){if(v==null||!isFinite(v))return '';if(Math.abs(v)<(S.span||1)*0.004)v=0;return (+v.toFixed(S.dec)).toString()}
-function renderTable(){
-  const T=S.table;
-  let h=`<thead><tr><th>${esc(T.xName)}</th>${T.cols.map((c,i)=>`<th><span class="sw" style="background:${c.color}"></span><span contenteditable="true" spellcheck="false" data-col="${i}">${esc(c.name)}</span></th>`).join('')}</tr></thead><tbody>`;
-  T.rows.forEach((r,ri)=>{h+=`<tr data-r="${ri}"><td>${esc(typeof r.x==='number'?numStr(r.x):r.x)}</td>${r.vals.map((v,ci)=>`<td contenteditable="true" spellcheck="false" data-r="${ri}" data-c="${ci}"${r.pts[ci]&&r.pts[ci].merged?' class="est" title="Overlapping dots, split by size"':''}>${numStr(v)}</td>`).join('')}</tr>`});
-  $('table').innerHTML=h+'</tbody>';
-}
-$('table').addEventListener('input',e=>{
-  const el=e.target;
-  if(el.dataset.col!=null){const i=+el.dataset.col;S.table.cols[i].name=el.textContent.trim();S.res.series[i].name=S.table.cols[i].name;renderInsights();renderCode();return}
-  if(el.dataset.r!=null){const r=S.table.rows[+el.dataset.r],c=+el.dataset.c,v=parseFloat(el.textContent.replace(/,/g,''));if(!isFinite(v))return;r.vals[c]=v;
-    const p=r.pts[c];if(p){p.y=v;if(S.fit&&S.fit.y){p.py=S.fit.y.toPixel(v);if(p.box)p.box[1]=Math.min(p.py,p.box[3])}}
-    drawOverlay(1);renderInsights();renderCode();renderRemake()}
-});
-$('checks').addEventListener('click',e=>{if(!e.target.closest('[data-fix]'))return;S.rem.type='bar';S.rem.zero=true;S.rem.trend='off';syncRemakeControls();select('tRem');
-  renderRemake();
-  // drop the axis from where the original started down to zero, so you watch the gaps shrink to their real size
-  const lv=(S.res.calib.y||[]).map(q=>q.v),from=lv.length?Math.min(...lv):0,t0=performance.now(),D=matchMedia('(prefers-reduced-motion: reduce)').matches?1:1400;
-  (function f(){const t=Math.min(1,(performance.now()-t0)/D),e2=t<.15?0:1-Math.pow(1-(t-.15)/.85,3),lo=from*(1-e2);
-    UnchartRemake.draw($('rc'),S.table,{type:'bar',theme:S.rem.theme,zero:false,trend:'off',lo});if(t<1)requestAnimationFrame(f);else renderRemake()})();
-});
-$('table').addEventListener('mouseover',e=>{const tr=e.target.closest('tr[data-r]');setHL(tr?+tr.dataset.r:-1,false)});
-$('table').addEventListener('mouseleave',()=>setHL(-1,false));
-function setHL(i,scroll){if(S.hl===i)return;S.hl=i;document.querySelectorAll('#table tr.hl').forEach(t=>t.classList.remove('hl'));
-  if(i>=0){const tr=document.querySelector(`#table tr[data-r="${i}"]`);if(tr){tr.classList.add('hl');if(scroll){const box=tr.closest('.tablebox');const top=tr.offsetTop-box.clientHeight/2;box.scrollTo({top,behavior:'smooth'})}}}drawOverlay(1)}
-function renderInsights(){
-  const cards=Unchart.insights(S.res);
-  const M=moments();
-  $('cards').innerHTML=(M.length?`<div class="card"><h4>Moments</h4><dl class="kv">${M.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></div>`:'')+cards.map(c=>`<div class="card"><h4><span class="sw" style="background:${c.color}"></span>${esc(c.series)}</h4><dl class="kv">${c.items.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></div>`).join('')||'<p class="empty">Not enough points to say much.</p>';
-}
-function renderChecks(){
-  const R=S.res,F=R.flags||[],A=R.axis,hasBars=R.series.some(s=>s.type==='bar'),passes=[];
-  if(hasBars&&!F.some(f=>/zero/.test(f.title)))passes.push(['Bars start at zero','So their heights compare fairly.']);
-  if(!A.yRight)passes.push(['One y axis','Every series is measured on the same scale.']);
-  if(!A.yLog)passes.push(['Linear scale','Equal steps on the axis mean equal amounts.']);
-  const warn=F.filter(f=>f.level==='warn').length;
-  $('honBadge').textContent=warn?`${warn} ISSUE${warn>1?'S':''}`:'OK';$('honBadge').className='badge'+(warn?'':' ok');
-  $('checks').innerHTML=F.map(f=>`<div class="check ${f.level}"><span class="dot">${f.level==='warn'?'!':'i'}</span><div><b>${esc(f.title)}</b><span>${esc(f.text)}</span>${/zero/.test(f.title)?'<div class="fixbtn"><button class="btn go" type="button" data-fix="1">See it drawn honestly</button></div>':''}</div></div>`).join('')+
-    passes.map(([t,d])=>`<div class="check ok"><span class="dot">✓</span><div><b>${t}</b><span>${d}</span></div></div>`).join('');
-}
-function matrix(){const T=S.table;return {head:[T.xName,...T.cols.map(c=>c.name)],rows:T.rows.map(r=>[typeof r.x==='number'?numStr(r.x):r.x,...r.vals.map(numStr)])}}
-function exportAs(f){
-  const M=matrix(),q=s=>/[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;
-  if(f==='tsv')return [M.head,...M.rows].map(r=>r.join('\t')).join('\n');
-  if(f==='csv')return [M.head,...M.rows].map(r=>r.map(q).join(',')).join('\n');
-  if(f==='md')return '| '+M.head.join(' | ')+' |\n|'+M.head.map((_,i)=>i?' ---: |':' --- |').join('')+'\n'+M.rows.map(r=>'| '+r.join(' | ')+' |').join('\n');
-  const cols=M.head.map((h,i)=>({h,v:M.rows.map(r=>r[i])})),isNum=c=>c.v.every(v=>v===''||isFinite(+v));
-  const lit=(c,none)=>isNum(c)?c.v.map(v=>v===''?none:v).join(', '):c.v.map(v=>JSON.stringify(v)).join(', ');
-  if(f==='pandas')return 'import pandas as pd\n\ndf = pd.DataFrame({\n'+cols.map(c=>`    ${JSON.stringify(c.h)}: [${lit(c,'None')}],`).join('\n')+'\n})';
-  if(f==='r')return 'df <- data.frame(\n'+cols.map((c,i)=>`  \`${c.h.replace(/`/g,'')}\` = c(${lit(c,'NA')})`+(i<cols.length-1?',':'')).join('\n')+',\n  check.names = FALSE\n)';
-  if(f==='json')return JSON.stringify(S.res.series.map(s=>({name:s.name,type:s.type,points:s.points.map(p=>({x:typeof p.x==='number'?+p.x.toFixed(6):p.x,y:+(+p.y).toFixed(S.dec)}))})),null,1);
-}
-function renderCode(){$('code').textContent=exportAs(S.fmt)}
-document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{S.fmt=b.dataset.f;document.querySelectorAll('[data-f]').forEach(x=>x.setAttribute('aria-pressed',x===b));renderCode()});
-
-
-// ---------- remake ----------
-S.rem={type:'line',theme:'light',zero:true,trend:'off'};
-function defaultRemake(){const R=S.res;if(!R||!R.ok)return;const t=R.series.every(s=>s.type==='scatter')?'dots':R.series.some(s=>s.type==='bar')?'bar':'line';S.rem.type=t;S.rem.trend='off';S.rem.zero=t==='bar';syncRemakeControls()}
-function syncRemakeControls(){
-  document.querySelectorAll('[data-rt]').forEach(b=>{b.setAttribute('aria-pressed',b.dataset.rt===S.rem.type);b.hidden=S.rem.type==='dots'?b.dataset.rt!=='line':false});
-  document.querySelectorAll('[data-rth]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.rth===S.rem.theme));
-  $('rZero').checked=S.rem.zero;$('rTrend').value=S.rem.trend;
-  const numX=S.table&&S.table.rows.every(r=>typeof r.x==='number');$('rTrend').disabled=!numX||S.rem.type==='bar';
-}
-function renderRemake(){
-  if(!S.table||$('pRem').hidden)return;
-  const cv=$('rc');const out=UnchartRemake.draw(cv,S.table,{type:S.rem.type,theme:S.rem.theme,zero:S.rem.zero,trend:S.rem.trend});
-  const notes=[];const R=S.res,F=R.flags||[];
-  if(F.some(f=>/zero/.test(f.title)))notes.push(S.rem.zero?'The original chart cut off the bottom of its axis. This version starts at zero, so the bars compare fairly.':'This matches the original cut off axis. Tick the box to see it honestly.');
-  (out.projections||[]).forEach((p,i)=>{if(!p)return;const e=p.pts[p.pts.length-1],nm=S.table.cols[i].name;
-    if(p.fit){notes.push(`${nm} rises about ${fmt(p.slope)} for every 1 on x. The straight line explains ${(Math.max(0,p.r2)*100).toFixed(0)}% of the spread, and the band shows where 90% of new points would land.`);return}
-    notes.push(`${nm} heads to about ${fmt(e.y)} by ${fmt(e.x)}, with a 90% band of ${fmt(e.lo)} to ${fmt(e.hi)}. The ${p.kind==='growth'?'growth curve':'straight line'} explains ${(Math.max(0,p.r2)*100).toFixed(0)}% of the past movement.`)});
-  if(out.projections&&out.projections.some(p=>p&&!p.fit))notes.push('A projection only carries the past forward. It cannot see anything about to change.');
-  $('rNote').textContent=notes.join(' ');
-}
-document.querySelectorAll('[data-rt]').forEach(b=>b.onclick=()=>{S.rem.type=b.dataset.rt;if(b.dataset.rt==='bar')S.rem.trend='off';syncRemakeControls();renderRemake()});
-document.querySelectorAll('[data-rth]').forEach(b=>b.onclick=()=>{S.rem.theme=b.dataset.rth;syncRemakeControls();renderRemake()});
-$('rZero').onchange=e=>{S.rem.zero=e.target.checked;renderRemake()};
-$('rTrend').onchange=e=>{S.rem.trend=e.target.value;renderRemake()};
-$('tRem').addEventListener('click',()=>requestAnimationFrame(renderRemake));
-addEventListener('resize',()=>{clearTimeout(renderRemake.t);renderRemake.t=setTimeout(renderRemake,150)});
-$('rCopy').onclick=()=>{$('rc').toBlob(async b=>{try{await navigator.clipboard.write([new ClipboardItem({'image/png':b})]);toast('Image copied. Paste it into slides or a doc.')}catch(e){toast('Copying images is blocked here. Use Download PNG.')}},'image/png')};
-$('rSave').onclick=()=>{const a=document.createElement('a');a.href=$('rc').toDataURL('image/png');a.download='unchart-remake.png';document.body.appendChild(a);a.click();a.remove();toast('Saved unchart-remake.png')};
-
-// ---------- moments: crossings and the biggest moves ----------
-function moments(){
-  const T=S.table;if(!T||!T.rows.every(r=>typeof r.x==='number')||S.res.series.some(s=>s.type!=='line'))return [];
-  const out=[],rows=T.rows,k=T.cols.length;
-  for(let a=0;a<k;a++)for(let b=a+1;b<k;b++)for(let i=1;i<rows.length;i++){
-    const d0=rows[i-1].vals[a]-rows[i-1].vals[b],d1=rows[i].vals[a]-rows[i].vals[b];
-    if(isFinite(d0)&&isFinite(d1)&&d0*d1<0){const up=d1>0?a:b,dn=d1>0?b:a;out.push(['Crossing',`${T.cols[up].name} moved above ${T.cols[dn].name} between ${numStr(rows[i-1].x)} and ${numStr(rows[i].x)}`])}
-  }
-  for(let c=0;c<k;c++){let best=null;for(let i=1;i<rows.length;i++){const v0=rows[i-1].vals[c],v1=rows[i].vals[c];if(!isFinite(v0)||!isFinite(v1))continue;const d=v1-v0;if(!best||Math.abs(d)>Math.abs(best.d))best={d,i,v0}}
-    if(best)out.push(['Biggest move',`${T.cols[c].name} ${best.d>=0?'rose':'fell'} ${fmt(Math.abs(best.d))}${best.v0?` (${(Math.abs(best.d/best.v0)*100).toFixed(0)}%)`:''} from ${numStr(rows[best.i-1].x)} to ${numStr(rows[best.i].x)}`])}
-  return out;
-}
-// ---------- copy and download ----------
-function toast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,1900)}
-async function copy(text,label){
-  try{await navigator.clipboard.writeText(text);toast(label)}
-  catch(e){const pre=$('code');pre.textContent=text;select('tExp');const r=document.createRange();r.selectNodeContents(pre);const s=getSelection();s.removeAllRanges();s.addRange(r);toast('Selected. Press Ctrl C or ⌘C.')}
-}
-$('copySheets').onclick=()=>S.table&&copy(exportAs('tsv'),'Copied. Paste into any sheet.');
-$('copyCode').onclick=()=>S.table&&copy($('code').textContent,'Copied');
-$('dlCsv').onclick=()=>{
-  if(!S.table)return;const blob=new Blob([exportAs('csv')],{type:'text/csv'}),a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);a.download='unchart.csv';document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(a.href),2000);toast('Saved unchart.csv');
-};
-
-// ---------- tabs, views, examples ----------
-function select(id){[['tData','pData'],['tIns','pIns'],['tRem','pRem'],['tHon','pHon'],['tExp','pExp']].forEach(([t,p])=>{$(t).setAttribute('aria-selected',t===id);$(p).hidden=t!==id})}
-['tData','tIns','tRem','tHon','tExp'].forEach(t=>$(t).onclick=()=>select(t));
-[['vBoth','both'],['vOrig','orig'],['vRebuilt','rebuilt']].forEach(([id,v])=>$(id).onclick=()=>{S.view=v;['vBoth','vOrig','vRebuilt'].forEach(x=>$(x).setAttribute('aria-pressed',x===id));drawOverlay(1)});
-async function example(f,animate){
-  document.querySelectorAll('[data-ex]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.ex===f));
-  $('pdfnav').hidden=true;S.pdf=null;$('extag').hidden=false;$('errbox').innerHTML='';
-  const c=await loadURL('examples/'+f),R=JSON.parse(JSON.stringify(window.UNCHART_EXAMPLES[f]));
-  show(c,R);setSteps({read:'done',axes:'done',trace:'done',check:'done'});$('time').textContent=`${(R.ms/1000).toFixed(1)} s`;
-  if(f==='ex_bars.png'&&animate)select('tHon');else if(animate)select('tData');
-  if(animate)reveal();
-}
-document.querySelectorAll('[data-ex]').forEach(b=>b.onclick=()=>example(b.dataset.ex,true));
-
-// ---------- input ----------
-async function take(blob){
-  document.querySelectorAll('[data-ex]').forEach(x=>x.setAttribute('aria-pressed','false'));$('extag').hidden=true;
-  if(!isPDF(blob)){$('pdfnav').hidden=true;S.pdf=null}
-  let c;try{c=await loadBlob(blob)}catch(e){fail('That file could not be opened.','Use a PNG, JPG, WebP or PDF.');return}
-  if(c.width>2400){const k=2400/c.width,d=document.createElement('canvas');d.width=2400;d.height=Math.round(c.height*k);d.getContext('2d').drawImage(c,0,0,d.width,d.height);c=d}
-  $('box').scrollIntoView({behavior:'smooth',block:'nearest'});
-  if(S.pdf){show(c,null);waiting('Drag a box around the chart on this page.');return}
-  show(c,null);run(c,null);
-}
-$('open').onclick=()=>$('file').click();
-$('file').onchange=e=>{const f=e.target.files[0];if(f)take(f);e.target.value=''};
-document.addEventListener('paste',e=>{const it=[...((e.clipboardData||{}).items||[])].find(i=>i.type.startsWith('image/'));if(it){e.preventDefault();take(it.getAsFile())}});
-let dragN=0;
-document.addEventListener('dragenter',e=>{if([...e.dataTransfer.types].includes('Files')){dragN++;$('drop').hidden=false}});
-document.addEventListener('dragleave',()=>{if(--dragN<=0){dragN=0;$('drop').hidden=true}});
-document.addEventListener('dragover',e=>e.preventDefault());
-document.addEventListener('drop',e=>{e.preventDefault();dragN=0;$('drop').hidden=true;const f=e.dataTransfer.files[0];if(f)take(f)});
-
-// ---------- drag to crop, hover to measure ----------
-let drag=null;
-const pos=e=>{const r=sel.getBoundingClientRect();return [(e.clientX-r.left)/r.width*sel.width,(e.clientY-r.top)/r.height*sel.height]};
-function clearSel(){sel.getContext('2d').clearRect(0,0,sel.width,sel.height);$('cropgo').hidden=true}
-// grab a point to move it, or drag on empty space to pick an area
-function nearPoint(e){const T=S.table,R=S.res;if(!T||!R||!R.ok||S.view==='orig'||!S.fit||!S.fit.y)return null;const [mx,my]=pos(e),off=S.crop?[S.crop.x,S.crop.y]:[0,0];let best=null,bd=1e9;
-  T.rows.forEach((r,ri)=>r.pts.forEach((p,c)=>{if(!p||p.empty)return;const d=Math.hypot(p.px+off[0]-mx,p.py+off[1]-my);if(d<bd){bd=d;best={ri,c,p}}}));return bd<=Math.max(10,sel.width/90)?best:null}
-let pdrag=null;
-sel.addEventListener('pointerdown',e=>{if(!S.canvas)return;const np=nearPoint(e);
-  if(np){pdrag=np;sel.setPointerCapture(e.pointerId);sel.className='grabbing';$('tip').hidden=true;return}
-  drag={a:pos(e),b:pos(e),moved:false};sel.setPointerCapture(e.pointerId);$('cropgo').hidden=true});
-sel.addEventListener('pointermove',e=>{
-  if(!pdrag){sel.className=nearPoint(e)?'grab':'';return}
-  const off=S.crop?S.crop.y:0,py=pos(e)[1]-off,v=S.fit.y.toValue(py),r=S.table.rows[pdrag.ri],p=pdrag.p;
-  p.py=py;p.y=v;r.vals[pdrag.c]=v;if(p.box)p.box[1]=Math.min(py,p.box[3]);
-  const td=document.querySelector(`#table td[data-r="${pdrag.ri}"][data-c="${pdrag.c}"]`);if(td)td.textContent=numStr(v);
-  $('xy').innerHTML=`<span class="xy">${esc(S.table.cols[pdrag.c].name)} at ${esc(typeof r.x==='number'?numStr(r.x):r.x)} is now ${esc(numStr(v))}</span>`;
-  setHL(pdrag.ri,true);drawOverlay(1);e.stopImmediatePropagation();
-});
-sel.addEventListener('pointerup',e=>{if(!pdrag)return;pdrag=null;sel.className='grab';renderInsights();renderCode();renderRemake();toast('Point moved. The table, reading and remake updated.');e.stopImmediatePropagation()});
-sel.addEventListener('pointermove',e=>{
-  if(drag){drag.b=pos(e);const [x0,y0]=drag.a,[x1,y1]=drag.b;if(Math.hypot(x1-x0,y1-y0)>8)drag.moved=true;if(!drag.moved)return;
-    const g=sel.getContext('2d');g.clearRect(0,0,sel.width,sel.height);g.fillStyle='rgba(10,10,11,.55)';g.fillRect(0,0,sel.width,sel.height);
-    g.clearRect(Math.min(x0,x1),Math.min(y0,y1),Math.abs(x1-x0),Math.abs(y1-y0));g.strokeStyle=css('--signal');g.lineWidth=Math.max(1.5,sel.width/600);g.strokeRect(Math.min(x0,x1),Math.min(y0,y1),Math.abs(x1-x0),Math.abs(y1-y0));return}
-  hover(e);
-});
-sel.addEventListener('pointerup',()=>{
-  if(!drag)return;const {a:[x0,y0],b:[x1,y1],moved}=drag;drag=null;if(!moved)return;
-  const w=Math.abs(x1-x0),h=Math.abs(y1-y0);if(w<40||h<40){clearSel();return}
-  S.pending={x:Math.round(Math.min(x0,x1)),y:Math.round(Math.min(y0,y1)),w:Math.round(w),h:Math.round(h)};
-  const b=$('cropgo');b.hidden=false;b.style.left=((S.pending.x+w/2)/sel.width*100)+'%';b.style.top=((S.pending.y+h)/sel.height*100)+'%';
-});
-sel.addEventListener('pointerleave',()=>{$('tip').hidden=true;S.cross=null;if(!drag){setHL(-1,false);drawOverlay(1)}$('xy').textContent='Move over the chart to measure any point'});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){clearSel();S.pending=null}});
-$('cropgo').onclick=()=>{clearSel();run(S.canvas,S.pending)};
-function hover(e){
-  const T=S.table,R=S.res;if(!T||!R||!R.ok)return;const [mx,my]=pos(e),off=S.crop?[S.crop.x,S.crop.y]:[0,0];
-  const lx=mx-off[0],ly=my-off[1],rc=R.rect;
-  // live measurement under the cursor
-  if(lx>=rc.left&&lx<=rc.right&&ly>=rc.top&&ly<=rc.bottom&&S.fit&&S.fit.y){
-    S.cross=[lx,ly];const yv=S.fit.y.toValue(ly),xv=S.fit.x?S.fit.x.toValue(lx):null;
-    $('xy').innerHTML=`<span class="xy">${xv!=null?'x '+esc(fmt(xv))+'  ':''}y ${esc(fmt(yv))}</span>`;
-  }else S.cross=null;
-  let best=-1,bd=1e9,bp=null,bc=0;
-  T.rows.forEach((r,i)=>r.pts.forEach((p,c)=>{if(!p)return;const d=Math.hypot(p.px+off[0]-mx,p.py+off[1]-my);if(d<bd){bd=d;best=i;bp=p;bc=c}}));
-  const tip=$('tip');
-  if(best<0||bd>Math.max(14,sel.width/40)){tip.hidden=true;S.hl=-1;document.querySelectorAll('#table tr.hl').forEach(t=>t.classList.remove('hl'));drawOverlay(1);return}
-  tip.hidden=false;tip.style.left=((bp.px+off[0])/sel.width*100)+'%';tip.style.top=((bp.py+off[1])/sel.height*100)+'%';
-  const r=T.rows[best];tip.textContent=`${T.cols[bc].name}  ${typeof r.x==='number'?numStr(r.x):r.x}  →  ${numStr(r.vals[bc])}`;
-  setHL(best,true);drawOverlay(1);
-}
-example('ex_line.png',false);
-})();
-</script>
+<script src="src/app.js"></script>
 
 <script>
 // carry the CSS written in the homepage console over to this page, and keep it in sync across open tabs
@@ -667,5 +501,4 @@ example('ex_line.png',false);
 .live-chip button{font:inherit;letter-spacing:inherit;text-transform:inherit;background:none;border:0;padding:0;color:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .live-chip[hidden]{display:none}
 </style>
-<script src="../player.js" defer></script>
 </body></html>

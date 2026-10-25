@@ -1,0 +1,298 @@
+<!doctype html><html><head><meta charset="utf-8">
+<script src="../node_modules/chart.js/dist/chart.umd.js"></script>
+<script src="../node_modules/vega/build/vega.min.js"></script>
+<script src="../node_modules/vega-lite/build/vega-lite.min.js"></script>
+<script src="../node_modules/vega-themes/build/vega-themes.min.js"></script>
+<script src="../node_modules/echarts/dist/echarts.min.js"></script>
+<script src="../node_modules/plotly.js-dist-min/plotly.min.js"></script>
+<style>body{margin:0;background:#fff}#box{position:absolute;left:0;top:0}</style>
+</head><body><div id="box"></div>
+<script>
+// draws one benchmark spec with Chart.js, Vega-Lite, ECharts or Plotly and reports the axis range it used
+const PAL = {
+  cj_default: ['#36A2EB', '#FF6384', '#4BC0C0', '#FF9F40', '#9966FF', '#FFCD56', '#C9CBCF'],
+  cj_custom: ['#3366cc', '#dc3912', '#109618', '#ff9900', '#990099', '#0099c6'],
+  cj_dark: ['#4dc9f6', '#f67019', '#f53794', '#537bc4', '#acc236', '#166a8f'],
+  cj_pastel: ['#8dd3c7', '#fb8072', '#80b1d3', '#fdb462', '#b3de69', '#bebada'],
+  ec_vintage: ['#d87c7c', '#919e8b', '#d7ab82', '#6e7074', '#61a0a8', '#efa18d'],
+};
+function fmtFn(f) {
+  if (f === 'thousands') return v => Math.round(v).toLocaleString('en-US');
+  if (f === 'currency') return v => (v < 0 ? '-' : '') + '$' + Math.round(Math.abs(v)).toLocaleString('en-US');
+  if (f === 'pct') return v => (+v.toFixed(6)) + '%';
+  if (f === 'suffix') return v => { const a = Math.abs(v); return a >= 1e6 ? (+(v / 1e6).toFixed(3)) + 'M' : a >= 1e3 ? (+(v / 1e3).toFixed(3)) + 'K' : String(+v.toFixed(3)); };
+  return null;
+}
+const d3fmt = { thousands: ',.0f', currency: '$,.0f', suffix: '~s' };
+function dateLabel(iso, span) { const d = new Date(iso + 'T00:00:00Z'), m = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.getUTCMonth()];
+  return span > 200 ? `${m} ${d.getUTCFullYear()}` : `${m} ${d.getUTCDate()}`; }
+const xvals = s => s.xkind === 'num' ? s.x : s.x;
+const isH = f => f === 'hbar' || f === 'stacked_hbar';
+const isStack = f => f.startsWith('stacked');
+
+// ---------------- Chart.js ----------------
+async function chartjs(s) {
+  const pal = s.palette || PAL['cj_' + s.look], dark = s.look === 'dark', fg = dark ? '#dddddd' : '#666666', grid = dark ? '#444444' : 'rgba(0,0,0,0.1)', bg = dark ? '#1e1e1e' : '#ffffff';
+  Chart.defaults.color = fg; Chart.defaults.font.family = s.look === 'custom' ? 'Liberation Sans' : s.look === 'pastel' ? 'Inter' : "'Helvetica Neue', Helvetica, Arial, sans-serif";
+  const c = document.createElement('canvas'); c.width = s.w; c.height = s.h; c.style.width = s.w + 'px'; c.style.height = s.h + 'px';
+  box.innerHTML = ''; box.appendChild(c);
+  const f = s.family, S = s.series, ff = fmtFn(s.fmt);
+  let type = 'bar', data, opts = { animation: false, responsive: false, devicePixelRatio: 1, plugins: { legend: { display: S.length > 1 || f === 'pie' || f === 'donut' || f === 'bar_line' }, title: { display: !!s.title, text: s.title } }, scales: {} };
+  const vax = isH(f) ? 'x' : 'y', cax = isH(f) ? 'y' : 'x';
+  const span = s.xkind === 'date' ? (Date.parse(s.x[s.x.length - 1]) - Date.parse(s.x[0])) / 864e5 : 0;
+  const labels = s.xkind === 'date' ? s.x.map(v => dateLabel(v, span)) : s.x;
+  const ds = S.map((q, j) => ({ label: q.name, data: q.y, backgroundColor: pal[j % pal.length], borderColor: pal[j % pal.length], borderWidth: 2 }));
+  if (['bar', 'hbar', 'grouped_bar', 'stacked_bar', 'stacked_hbar'].includes(f)) {
+    data = { labels, datasets: ds }; if (isH(f)) opts.indexAxis = 'y';
+    if (isStack(f)) opts.scales = { x: { stacked: true }, y: { stacked: true } };
+  } else if (['line', 'step', 'area', 'stacked_area'].includes(f)) {
+    type = 'line';
+    ds.forEach((d, j) => { d.pointRadius = s.marker ? 3 : 0; d.tension = 0; if (s.dash && s.dash[j]) d.borderDash = [6, 4];
+      if (f === 'step') d.stepped = s.where === 'post' ? 'after' : 'before';
+      if (f === 'area') { d.fill = 'origin'; d.backgroundColor = pal[j % pal.length] + '66'; }
+      if (f === 'stacked_area') { d.fill = j ? '-1' : 'origin'; d.backgroundColor = pal[j % pal.length] + 'cc'; }
+      if (S[j].axis === 'right') d.yAxisID = 'y1'; });
+    if (s.xkind === 'num') { ds.forEach((d, j) => d.data = S[j].y.map((v, i) => ({ x: s.x[i], y: v }))); data = { datasets: ds }; opts.scales.x = { type: 'linear' }; }
+    else data = { labels, datasets: ds };
+    if (f === 'stacked_area') opts.scales.y = { stacked: true };
+  } else if (f === 'scatter') {
+    type = 'scatter'; const shapes = ['circle', 'rect', 'triangle', 'rectRot'];
+    ds.forEach((d, j) => { d.data = S[j].x.map((x, i) => ({ x, y: S[j].y[i] })); d.pointRadius = 4; if (s.marker_shapes) d.pointStyle = shapes[j % 4]; });
+    data = { datasets: ds };
+  } else if (f === 'pie' || f === 'donut') {
+    type = f === 'pie' ? 'pie' : 'doughnut';
+    data = { labels: s.x, datasets: [{ data: S[0].y, backgroundColor: s.x.map((_, j) => pal[j % pal.length]), borderColor: bg, borderWidth: 2 }] };
+    opts.plugins.legend.position = s.legend === 'labels' ? 'top' : 'right';
+  } else if (f === 'histogram') {
+    const e = s.x; data = { labels: e.slice(0, -1).map(v => String(+v.toFixed(3))), datasets: [{ label: 'Count', data: S[0].y, backgroundColor: pal[0], borderColor: s.edgecolor ? bg : pal[0], borderWidth: s.edgecolor ? 1 : 0, barPercentage: 1, categoryPercentage: 1 }] };
+  } else if (f === 'bar_line') {
+    ds[1].type = 'line'; ds[1].pointRadius = 3; ds[1].tension = 0; if (s.dual) ds[1].yAxisID = 'y1'; ds.reverse();
+    data = { labels, datasets: ds };
+  }
+  if (type !== 'pie' && type !== 'doughnut') {
+    opts.scales[vax] = Object.assign(opts.scales[vax] || {}, { grid: { color: grid, display: s.grid }, ticks: { color: fg } });
+    opts.scales[cax] = Object.assign(opts.scales[cax] || {}, { grid: { color: grid, display: s.grid && f === 'scatter' }, ticks: { color: fg } });
+    if (ff) opts.scales[vax].ticks.callback = v => ff(v);
+    if (s.ylog) opts.scales[vax].type = 'logarithmic';
+    if (s.yrev) opts.scales[vax].reverse = true;
+    if (s.noticks) opts.scales[vax].ticks.display = false;
+    if (f === 'scatter' && s.xfmt === 'thousands') opts.scales.x.ticks.callback = v => Math.round(v).toLocaleString('en-US');
+    if (s.dual) opts.scales.y1 = { position: 'right', grid: { display: false }, ticks: { color: fg, display: !s.noticks } };
+  } else opts.scales = {};
+  const bgPlugin = { id: 'bg', beforeDraw: ch => { const g = ch.ctx; g.save(); g.fillStyle = bg; g.fillRect(0, 0, ch.width, ch.height); g.restore(); } };
+  const ch = new Chart(c, { type, data, options: opts, plugins: [bgPlugin] });
+  await new Promise(r => setTimeout(r, 30));
+  const info = {};
+  if (ch.scales[vax] && type !== 'pie' && type !== 'doughnut') { info.vlim = [ch.scales[vax].min, ch.scales[vax].max]; if (f === 'scatter') info.xlim = [ch.scales.x.min, ch.scales.x.max]; if (ch.scales.y1) info.vlim_right = [ch.scales.y1.min, ch.scales.y1.max]; }
+  if (type === 'pie' || type === 'doughnut') { info.start = 90; info.ccw = false; }
+  if (ch.chartArea) info.plot = [ch.chartArea.left, ch.chartArea.top, ch.chartArea.right, ch.chartArea.bottom];
+  const png = c.toDataURL('image/png'); ch.destroy();
+  return { png, info };
+}
+
+// ---------------- Vega-Lite ----------------
+async function vegalite(s) {
+  const f = s.family, S = s.series;
+  const rows = [];
+  const fmtAxis = (ax) => { if (s.fmt === 'pct') ax.labelExpr = "format(datum.value, '~g') + '%'"; else if (d3fmt[s.fmt]) ax.format = d3fmt[s.fmt]; if (s.noticks) ax.labels = false; return ax; };
+  const vscale = {}; if (s.ylog) vscale.type = 'log'; if (s.yrev) vscale.reverse = true;
+  let spec;
+  const W = s.w - 120, H = s.h - 90;
+  const order = S.map(q => q.name);
+  if (['bar', 'hbar', 'grouped_bar', 'stacked_bar', 'stacked_hbar', 'bar_line'].includes(f)) {
+    const bars = f === 'bar_line' ? [S[0]] : S;
+    bars.forEach(q => q.y.forEach((v, i) => rows.push({ c: s.x[i], s: q.name, v, i })));
+    const cat = { field: 'c', type: 'nominal', sort: null, title: null, axis: { labelAngle: s.x.length > 8 ? -45 : 0 } };
+    const val = { field: 'v', type: 'quantitative', title: null, axis: fmtAxis({ grid: s.grid }), scale: vscale };
+    const enc = isH(f) ? { y: cat, x: val } : { x: cat, y: val };
+    enc.color = { field: 's', type: 'nominal', sort: order, legend: S.length > 1 ? { title: null } : null };
+    if (f === 'grouped_bar') enc.xOffset = { field: 's', sort: order };
+    if (!isStack(f)) val.stack = null;
+    spec = { data: { values: rows }, mark: { type: 'bar' }, encoding: enc };
+    if (f === 'bar_line') {
+      const lr = S[1].y.map((v, i) => ({ c: s.x[i], s: S[1].name, w: v }));
+      spec = { layer: [spec, { data: { values: lr }, mark: { type: 'line', point: true, color: (s.palette || [0, '#e45756'])[1], strokeWidth: 2.5 },
+        encoding: { x: cat, y: { field: 'w', type: 'quantitative', title: null, axis: fmtAxis({ grid: false }), scale: s.dual ? {} : vscale } } }] };
+      if (s.dual) spec.resolve = { scale: { y: 'independent' } };
+    }
+  } else if (['line', 'step', 'area', 'stacked_area'].includes(f)) {
+    S.forEach((q, j) => q.y.forEach((v, i) => rows.push({ x: s.x[i], s: q.name, v, j, i })));
+    const xt = s.xkind === 'num' ? 'quantitative' : s.xkind === 'date' ? 'temporal' : 'ordinal';
+    const enc = { x: { field: 'x', type: xt, title: null, sort: s.xkind === 'cat' ? null : undefined, scale: s.xkind === 'num' ? { zero: false, nice: false } : undefined },
+      y: { field: 'v', type: 'quantitative', title: null, axis: fmtAxis({ grid: s.grid }), scale: Object.assign({ zero: f !== 'line' && f !== 'step' }, vscale), stack: f === 'stacked_area' ? 'zero' : null },
+      color: { field: 's', type: 'nominal', sort: order, legend: S.length > 1 ? { title: null } : null } };
+    if (f === 'line' && s.dash && s.dash.some(Boolean)) enc.strokeDash = { field: 's', type: 'nominal', sort: order, legend: null, scale: { domain: order, range: s.dash.map(d => d ? [6, 4] : [1, 0]) } };
+    const mark = f === 'area' || f === 'stacked_area' ? { type: 'area', line: f === 'area', opacity: f === 'area' ? 0.6 : 1 } : { type: 'line', point: !!s.marker, interpolate: f === 'step' ? (s.where === 'post' ? 'step-after' : 'step-before') : 'linear' };
+    spec = { data: { values: rows }, mark, encoding: enc };
+    if (s.dual) {
+      spec = { layer: S.map((q, j) => ({ data: { values: rows.filter(r => r.j === j) }, mark: { type: 'line', color: (s.palette || ['#4c78a8', '#f58518'])[j] },
+        encoding: { x: enc.x, y: { field: 'v', type: 'quantitative', title: q.name, axis: fmtAxis({ grid: s.grid && !j }), scale: { zero: false } } } })), resolve: { scale: { y: 'independent' } } };
+    }
+  } else if (f === 'scatter') {
+    S.forEach(q => q.x.forEach((x, i) => rows.push({ x, y: q.y[i], s: q.name })));
+    const enc = { x: { field: 'x', type: 'quantitative', title: null, scale: { zero: false }, axis: s.xfmt === 'thousands' ? { format: ',' } : {} },
+      y: { field: 'y', type: 'quantitative', title: null, axis: fmtAxis({ grid: s.grid }), scale: Object.assign({ zero: false }, vscale) },
+      color: { field: 's', type: 'nominal', sort: order, legend: S.length > 1 ? { title: null } : null } };
+    if (s.marker_shapes) enc.shape = { field: 's', type: 'nominal', sort: order, legend: S.length > 1 ? { title: null } : null };
+    spec = { data: { values: rows }, mark: { type: 'point', filled: true, size: 50, opacity: 1 }, encoding: enc };
+  } else if (f === 'pie' || f === 'donut') {
+    s.x.forEach((c, i) => rows.push({ c, v: S[0].y[i], i }));
+    const base = { theta: { field: 'v', type: 'quantitative', stack: true }, color: { field: 'c', type: 'nominal', sort: s.x, legend: s.legend === 'legend' ? { title: null } : null }, order: { field: 'i' } };
+    const R = Math.min(W, H) / 2;
+    const arc = { mark: { type: 'arc', outerRadius: R * 0.85, innerRadius: f === 'donut' ? R * 0.45 : 0, stroke: '#fff' }, encoding: base };
+    spec = { data: { values: rows }, layer: [arc] };
+    if (s.legend === 'labels') spec.layer.push({ mark: { type: 'text', radius: R * 0.98, fontSize: 11 }, encoding: Object.assign({}, base, { text: { field: 'c' }, color: { value: '#333' } }) });
+  } else if (f === 'histogram') {
+    const e = s.x; S[0].y.forEach((v, i) => rows.push({ a: e[i], b: e[i + 1], v }));
+    spec = { data: { values: rows }, mark: { type: 'bar', stroke: s.edgecolor ? '#fff' : null, strokeWidth: 1 },
+      encoding: { x: { field: 'a', type: 'quantitative', title: null, scale: { zero: false, nice: false } }, x2: { field: 'b' }, y: { field: 'v', type: 'quantitative', title: null, axis: fmtAxis({ grid: s.grid }) }, y2: { datum: 0 } } };
+  }
+  spec.$schema = 'https://vega.github.io/schema/vega-lite/v5.json';
+  spec.width = W; spec.height = H; if (s.title) spec.title = s.title;
+  if (s.look !== 'default') spec.config = vegaThemes[s.look];
+  spec.config = Object.assign({}, spec.config || {}, { background: (spec.config && spec.config.background) || '#ffffff' });
+  if (s.palette) spec.config.range = Object.assign({}, spec.config.range || {}, { category: s.palette });
+  const vg = vegaLite.compile(spec).spec;
+  const view = new vega.View(vega.parse(vg), { renderer: 'none' });
+  await view.runAsync();
+  const canvas = await view.toCanvas(1);
+  const info = {};
+  try { const o = view.origin(); info.plot = [o[0], o[1], o[0] + W, o[1] + H]; } catch (e) { }
+  try {
+    if (f === 'pie' || f === 'donut') { info.start = 90; info.ccw = false; }
+    else {
+      const sc = n => { try { return view.scale(n) } catch (e) { return null } };
+      const names = isH(f) ? ['x'] : ['y', 'layer_0_y', 'child__layer_0_y', 'layer_0_layer_0_y'];
+      for (const n of names) { const q = sc(n); if (q) { const d = q.domain(); info.vlim = [Math.min(...d), Math.max(...d)]; break; } }
+      if (s.dual) for (const n of ['layer_1_y', 'child__layer_1_y']) { const q = sc(n); if (q) { const d = q.domain(); info.vlim_right = [Math.min(...d), Math.max(...d)]; } }
+      if (f === 'scatter') { const d = sc('x').domain(); info.xlim = [Math.min(...d), Math.max(...d)]; }
+    }
+  } catch (e) { info.err = String(e); }
+  view.finalize();
+  return { png: canvas.toDataURL('image/png'), info };
+}
+
+// ---------------- ECharts ----------------
+async function echart(s) {
+  const f = s.family, S = s.series, dark = s.look === 'dark';
+  box.innerHTML = ''; const div = document.createElement('div'); div.style.width = s.w + 'px'; div.style.height = s.h + 'px'; box.appendChild(div);
+  const ch = echarts.init(div, dark ? 'dark' : null, { renderer: 'canvas', width: s.w, height: s.h, devicePixelRatio: 1 });
+  const ff = fmtFn(s.fmt);
+  const vAxis = { type: s.ylog ? 'log' : 'value', inverse: !!s.yrev, splitLine: { show: s.grid }, axisLabel: { show: !s.noticks } };
+  if (ff) vAxis.axisLabel.formatter = v => ff(v);
+  const opt = { animation: false, title: s.title ? { text: s.title, left: 'center', textStyle: { fontSize: 14 } } : undefined,
+    legend: S.length > 1 || f === 'bar_line' ? { top: s.title ? 26 : 4 } : undefined, grid: { left: 70, right: s.dual ? 70 : 30, top: s.title || S.length > 1 ? 60 : 30, bottom: 40, containLabel: false }, series: [] };
+  if (s.look === 'vintage') { opt.color = PAL.ec_vintage; opt.backgroundColor = '#fef8ef'; }
+  if (s.palette) opt.color = s.palette;
+  const span = s.xkind === 'date' ? (Date.parse(s.x[s.x.length - 1]) - Date.parse(s.x[0])) / 864e5 : 0;
+  if (['bar', 'hbar', 'grouped_bar', 'stacked_bar', 'stacked_hbar', 'histogram', 'bar_line'].includes(f)) {
+    const labels = f === 'histogram' ? s.x.slice(0, -1).map(v => String(+v.toFixed(3))) : s.x;
+    const cat = { type: 'category', data: labels, inverse: isH(f), axisLabel: { interval: 0, rotate: labels.length > 8 && !isH(f) ? 40 : 0 } };
+    if (isH(f)) { opt.yAxis = cat; opt.xAxis = vAxis; opt.grid.left = 90; } else { opt.xAxis = cat; opt.yAxis = vAxis; }
+    const bars = f === 'bar_line' ? [S[0]] : S;
+    bars.forEach(q => opt.series.push({ type: 'bar', name: q.name, data: q.y, stack: isStack(f) ? 'all' : undefined, barCategoryGap: f === 'histogram' ? '0%' : undefined,
+      itemStyle: f === 'histogram' && s.edgecolor ? { borderColor: '#fff', borderWidth: 1 } : undefined, label: s.value_labels && f !== 'histogram' ? { show: true, position: isH(f) ? 'right' : 'top' } : undefined }));
+    if (f === 'bar_line') {
+      opt.series.push({ type: 'line', name: S[1].name, data: S[1].y, yAxisIndex: s.dual ? 1 : 0, symbolSize: 6 });
+      if (s.dual) opt.yAxis = [vAxis, { type: 'value', splitLine: { show: false }, axisLabel: { show: !s.noticks } }];
+    }
+  } else if (['line', 'step', 'area', 'stacked_area'].includes(f)) {
+    opt.xAxis = s.xkind === 'num' ? { type: 'value', min: 'dataMin', max: 'dataMax' } : s.xkind === 'date' ? { type: 'time' } : { type: 'category', data: s.x, boundaryGap: false };
+    opt.yAxis = vAxis;
+    S.forEach((q, j) => opt.series.push({ type: 'line', name: q.name, data: s.xkind === 'cat' ? q.y : q.y.map((v, i) => [s.x[i], v]), showSymbol: !!s.marker, symbolSize: 6,
+      step: f === 'step' ? (s.where === 'post' ? 'end' : 'start') : false, lineStyle: { type: s.dash && s.dash[j] ? 'dashed' : 'solid', width: 2 },
+      areaStyle: f === 'area' ? { opacity: 0.5 } : f === 'stacked_area' ? { opacity: 1 } : undefined, stack: f === 'stacked_area' ? 'all' : undefined,
+      yAxisIndex: q.axis === 'right' ? 1 : 0 }));
+    if (s.dual) opt.yAxis = [vAxis, { type: 'value', splitLine: { show: false }, axisLabel: { show: !s.noticks } }];
+  } else if (f === 'scatter') {
+    opt.xAxis = { type: 'value', scale: true, splitLine: { show: s.grid } }; opt.yAxis = Object.assign(vAxis, { scale: true });
+    if (s.xfmt === 'thousands') opt.xAxis.axisLabel = { formatter: v => Math.round(v).toLocaleString('en-US') };
+    const shapes = ['circle', 'rect', 'triangle', 'diamond'];
+    S.forEach((q, j) => opt.series.push({ type: 'scatter', name: q.name, data: q.x.map((x, i) => [x, q.y[i]]), symbol: s.marker_shapes ? shapes[j % 4] : 'circle', symbolSize: 8 }));
+  } else if (f === 'pie' || f === 'donut') {
+    opt.legend = s.legend === 'legend' ? { orient: 'vertical', left: 'left', top: 'middle' } : undefined;
+    opt.series.push({ type: 'pie', radius: f === 'donut' ? ['40%', '68%'] : '65%', data: s.x.map((c, i) => ({ name: c, value: S[0].y[i] })),
+      label: { show: s.legend === 'labels' || s.value_labels, formatter: s.value_labels ? (s.legend === 'labels' ? '{b}: {d}%' : '{d}%') : '{b}' }, itemStyle: { borderColor: dark ? '#100c2a' : '#fff', borderWidth: 1 } });
+  }
+  ch.setOption(opt);
+  await new Promise(r => setTimeout(r, 30));
+  const info = {};
+  try {
+    if (f === 'pie' || f === 'donut') { info.start = 90; info.ccw = false; }
+    else {
+      const m = ch.getModel(), ax = m.getComponent(isH(f) ? 'xAxis' : 'yAxis', 0).axis.scale.getExtent();
+      info.vlim = s.ylog ? ax.map(v => Math.pow(m.getComponent('yAxis', 0).axis.scale.base || 10, v)) : ax;
+      if (s.dual) info.vlim_right = m.getComponent('yAxis', 1).axis.scale.getExtent();
+      if (f === 'scatter') info.xlim = m.getComponent('xAxis', 0).axis.scale.getExtent();
+    }
+  } catch (e) { info.err = String(e); }
+  try { const g = ch.getModel().getComponent('grid', 0).coordinateSystem.getRect(); info.plot = [g.x, g.y, g.x + g.width, g.y + g.height]; } catch (e) { }
+  const png = ch.getDataURL({ type: 'png', pixelRatio: 1, backgroundColor: dark ? '#100c2a' : s.look === 'vintage' ? '#fef8ef' : '#fff' });
+  ch.dispose();
+  return { png, info };
+}
+
+// ---------------- Plotly ----------------
+async function plotly(s) {
+  const f = s.family, S = s.series, tpl = window.TEMPLATES[s.look];
+  box.innerHTML = ''; const div = document.createElement('div'); box.appendChild(div);
+  const data = [], layout = { template: tpl, width: s.w, height: s.h, title: s.title ? { text: s.title } : undefined, showlegend: S.length > 1 || f === 'pie' || f === 'donut' || f === 'bar_line',
+    margin: { l: 70, r: s.dual ? 70 : 30, t: s.title ? 60 : 30, b: 50 } };
+  const vax = { showgrid: s.grid, showticklabels: !s.noticks };
+  if (s.fmt === 'pct') vax.ticksuffix = '%'; else if (d3fmt[s.fmt]) vax.tickformat = d3fmt[s.fmt];
+  if (s.ylog) vax.type = 'log'; if (s.yrev) vax.autorange = 'reversed';
+  if (['bar', 'hbar', 'grouped_bar', 'stacked_bar', 'stacked_hbar', 'bar_line'].includes(f)) {
+    const bars = f === 'bar_line' ? [S[0]] : S;
+    bars.forEach(q => data.push(isH(f) ? { type: 'bar', orientation: 'h', y: s.x, x: q.y, name: q.name } : { type: 'bar', x: s.x, y: q.y, name: q.name,
+      text: s.value_labels ? q.y.map(String) : undefined, textposition: s.value_labels ? 'outside' : undefined }));
+    layout.barmode = isStack(f) ? 'stack' : 'group';
+    if (isH(f)) { layout.xaxis = vax; layout.yaxis = { autorange: 'reversed', type: 'category' }; layout.margin.l = 100; } else { layout.yaxis = vax; layout.xaxis = { type: 'category' }; }
+    if (f === 'bar_line') { data.push({ type: 'scatter', mode: 'lines+markers', x: s.x, y: S[1].y, name: S[1].name, yaxis: s.dual ? 'y2' : 'y' });
+      if (s.dual) layout.yaxis2 = { overlaying: 'y', side: 'right', showgrid: false, showticklabels: !s.noticks }; }
+  } else if (['line', 'step', 'area', 'stacked_area'].includes(f)) {
+    S.forEach((q, j) => data.push({ type: 'scatter', mode: s.marker ? 'lines+markers' : 'lines', x: s.x, y: q.y, name: q.name,
+      line: { shape: f === 'step' ? (s.where === 'post' ? 'hv' : 'vh') : 'linear', dash: s.dash && s.dash[j] ? 'dash' : 'solid', width: 2 },
+      fill: f === 'area' ? 'tozeroy' : undefined, stackgroup: f === 'stacked_area' ? 'one' : undefined, yaxis: q.axis === 'right' ? 'y2' : 'y' }));
+    layout.yaxis = vax; layout.xaxis = { type: s.xkind === 'num' ? 'linear' : s.xkind === 'date' ? 'date' : 'category' };
+    if (s.dual) layout.yaxis2 = { overlaying: 'y', side: 'right', showgrid: false, showticklabels: !s.noticks };
+    if (s.annotate) { const i = S[0].y.indexOf(Math.max(...S[0].y)); layout.annotations = [{ x: s.x[i], y: S[0].y[i], text: 'Peak', showarrow: true, ax: 30, ay: 30 }]; }
+  } else if (f === 'scatter') {
+    const sym = ['circle', 'square', 'triangle-up', 'diamond'];
+    S.forEach((q, j) => data.push({ type: 'scatter', mode: 'markers', x: q.x, y: q.y, name: q.name, marker: { size: 8, symbol: s.marker_shapes ? sym[j % 4] : 'circle' } }));
+    layout.yaxis = vax; layout.xaxis = s.xfmt === 'thousands' ? { tickformat: ',' } : {};
+  } else if (f === 'pie' || f === 'donut') {
+    data.push({ type: 'pie', labels: s.x, values: S[0].y, hole: f === 'donut' ? 0.45 : 0, sort: false, direction: 'clockwise',
+      textinfo: s.value_labels ? (s.legend === 'labels' ? 'label+percent' : 'percent') : (s.legend === 'labels' ? 'label' : 'none') });
+    layout.showlegend = s.legend === 'legend';
+  } else if (f === 'histogram') {
+    const e = s.x; data.push({ type: 'bar', x: e.slice(0, -1).map((v, i) => (v + e[i + 1]) / 2), y: S[0].y, width: e.slice(0, -1).map((v, i) => e[i + 1] - v),
+      marker: { line: { width: s.edgecolor ? 1 : 0, color: '#fff' } } });
+    layout.bargap = 0; layout.yaxis = vax;
+  }
+  if (s.palette) layout.colorway = s.palette;
+  await Plotly.newPlot(div, data, layout, { staticPlot: true });
+  const info = {};
+  try {
+    const L = div._fullLayout;
+    if (f === 'pie' || f === 'donut') { info.start = 90; info.ccw = false; }
+    else {
+      const a = isH(f) ? L.xaxis : L.yaxis; let r = a.range.slice(); if (a.type === 'log') r = r.map(v => Math.pow(10, v));
+      info.vlim = [Math.min(...r), Math.max(...r)];
+      if (L.yaxis2) info.vlim_right = L.yaxis2.range.slice().sort((a, b) => a - b);
+      if (f === 'scatter') info.xlim = L.xaxis.range.slice().sort((a, b) => a - b);
+    }
+  } catch (e) { info.err = String(e); }
+  try { const z = div._fullLayout._size; info.plot = [z.l, z.t, z.l + z.w, z.t + z.h]; } catch (e) { }
+  const png = await Plotly.toImage(div, { format: 'png', width: s.w, height: s.h });
+  Plotly.purge(div);
+  return { png, info };
+}
+
+window.render = async function (s) {
+  if (s.renderer === 'chartjs') return chartjs(s);
+  if (s.renderer === 'vegalite') return vegalite(s);
+  if (s.renderer === 'echarts') return echart(s);
+  if (s.renderer === 'plotly') return plotly(s);
+  throw Error('unknown renderer ' + s.renderer);
+};
+</script></body></html>

@@ -1,0 +1,47 @@
+<!doctype html><html><head><meta charset="utf-8">
+<script src="../vendor/tesseract.min.js"></script>
+<script src="../vendor/pdf.min.js"></script>
+<script src="../src/engine.js"></script><script src="../src/ppocr.js"></script><script src="../src/seg.js"></script><script src="../src/ocr.js"></script></head><body>
+<script>
+// the page the batch tool drives: same reader as the app, fed one file at a time
+const abs = p => new URL(p, location.href).href;
+const PATHS = { workerPath: abs('../vendor/worker.min.js'), corePath: abs('../vendor/core/'), langFile: '../vendor/lang/eng.js', workerBlobURL: false, cacheMethod: 'none' };
+// the number reader the app uses, so the batch tool reads the same values
+PATHS.pp = { ort: abs('../vendor/ort/ort.wasm.min.js'), wasm: abs('../vendor/ort/'), model: '../vendor/pp/en_PP-OCRv5_mobile_rec.onnx', dict: '../vendor/pp/ppocrv5_en_dict.txt' };
+pdfjsLib.GlobalWorkerOptions.workerSrc = abs('../vendor/pdf.worker.min.js');
+// the experimental mark model is off unless the page is opened with ?model=1
+const useModel = new URLSearchParams(location.search).get('model') === '1';
+if (useModel) PATHS.seg = { ort: abs('../vendor/ort/ort.wasm.min.js'), wasm: abs('../vendor/ort/'), model: '../vendor/seg/unchart_marks.onnx' };
+const ready = fetch(useModel ? '../src/calibration_model.json' : '../src/calibration.json').then(r => r.ok ? r.json() : null).then(w => { if (w) Unchart.setCalibration(w); }).catch(() => {});
+function canvasOf(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); return c; }
+async function pages(name, b64) {
+  const bin = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+  if (/\.pdf$/i.test(name)) {
+    const doc = await pdfjsLib.getDocument({ data: bin }).promise, out = [];
+    for (let i = 1; i <= doc.numPages; i++) { const pg = await doc.getPage(i), vp = pg.getViewport({ scale: 2 }); const c = canvasOf(vp.width, vp.height); await pg.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise; out.push(c); }
+    return { pages: out, pdf: true };
+  }
+  const blob = new Blob([bin]), im = await createImageBitmap(blob);
+  let c = canvasOf(im.width, im.height); c.getContext('2d').drawImage(im, 0, 0);
+  if (c.width > 2400) { const k = 2400 / c.width, d = canvasOf(2400, Math.round(c.height * k)); d.getContext('2d').drawImage(c, 0, 0, d.width, d.height); c = d; }
+  return { pages: [c], pdf: false };
+}
+window.readFile = async function (name, b64, opts) {
+  await ready;
+  const { pages: P, pdf } = await pages(name, b64), out = [];
+  for (let pi = 0; pi < P.length; pi++) {
+    const page = P[pi], img = page.getContext('2d').getImageData(0, 0, page.width, page.height);
+    let boxes = Unchart.findCharts(img);
+    // a single image that is one chart: read it whole
+    if (!pdf && (boxes.length <= 1 || opts.whole)) boxes = [{ x: 0, y: 0, w: page.width, h: page.height }];
+    for (let k = 0; k < boxes.length; k++) {
+      const b = boxes[k], c = canvasOf(b.w, b.h); c.getContext('2d').drawImage(page, b.x, b.y, b.w, b.h, 0, 0, b.w, b.h);
+      const { res } = await UnchartOCR.readChart(c, PATHS, { type: opts.type || 'auto' });
+      out.push({ page: pi + 1, chart: k + 1, box: b, ok: res.ok, error: res.error, chartType: res.chartType, confidence: res.confidence, reliable: res.reliable,
+        issues: res.issues, flags: (res.flags || []).map(f => f.title), axis: res.axis, description: Unchart.describe(res), ms: Math.round(res.ms_total),
+        series: (res.series || []).map(s => ({ name: s.name, type: s.type, color: s.color, axis: s.axis, points: s.points.filter(p => !p.empty || p.y === 0).map(p => ({ x: p.x, y: p.y, err: p.err })) })) });
+    }
+  }
+  return out;
+};
+</script></body></html>
