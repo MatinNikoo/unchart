@@ -1,0 +1,54 @@
+# engine v4 frozen 2026-10-24T10:07Z before test v3 was built or any test set was run
+19176aae7793ff02a7166152c121d944dbb5ad064c7c77900b4df32f9db2056a  src/engine.js
+dc136db498aea9da9dea44d3bc26fa88c6b0f53168b9966c5079755b7a5027e8  src/ocr.js
+e2292249ba169fa9d1db0656ee90ce69a8063dfd57e2981c7d9e2a0f463361ec  src/seg.js
+ab0807dbfcc9c91044462a861977f33f31c5dcde99b21bf63cd4f87492af63cd  src/ppocr.js
+9e23e0103baa032fff46972b803dfe65e4e5e77280aa9687dd990c70bc6fe852  src/calibration.json
+781cba90ba872eb907d2b85c1752d804b57429a2a1bc18e68e48037b345baf7c  vendor/seg/unchart_marks.onnx
+9241f9d81586afbe69eb5b3be2dbd13f7b94e924dde7896c0c76ad0634d7a54b  harness.html
+# 2026-10-24, twenty minutes later: while the test runs were going, the dev table showed every pie and donut refused (the two read
+# pick rescored pies with the axis model). That is a bug found on dev. The test runs were stopped after about 100
+# test v3 charts, their output deleted unscored and unseen, the bug fixed (pies keep their own confidence), and the
+# engine frozen again below. The calibration did not change (pie confidence comes from its own model).
+# engine v4 frozen again 2026-10-24T10:28Z, before any test score
+50a1b2f20d3763ec1f75984b503de148372a38dcb7a3b33931c03adfa3486955  src/engine.js
+dc136db498aea9da9dea44d3bc26fa88c6b0f53168b9966c5079755b7a5027e8  src/ocr.js
+e2292249ba169fa9d1db0656ee90ce69a8063dfd57e2981c7d9e2a0f463361ec  src/seg.js
+ab0807dbfcc9c91044462a861977f33f31c5dcde99b21bf63cd4f87492af63cd  src/ppocr.js
+9e23e0103baa032fff46972b803dfe65e4e5e77280aa9687dd990c70bc6fe852  src/calibration.json
+781cba90ba872eb907d2b85c1752d804b57429a2a1bc18e68e48037b345baf7c  vendor/seg/unchart_marks.onnx
+9241f9d81586afbe69eb5b3be2dbd13f7b94e924dde7896c0c76ad0634d7a54b  harness.html
+# 2026-10-24, after the test scores. Decision: the trained mark model is off by default (it was a wash on test). The confidence model and
+# error bar scale were refit on dev reads made without it, and the app, command line and harness read with the rules alone unless
+# the experimental switch is on. This choice was made after the test v3 replays of both variants had been seen, so it is a selection
+# on test data and is disclosed as one in README.md and docs/benchmark.md. engine.js, ocr.js, ppocr.js, seg.js and the onnx file did
+# not change. calibration.json (the rules only fit) and harness.html (a switch for the model) did, deliberately.
+50a1b2f20d3763ec1f75984b503de148372a38dcb7a3b33931c03adfa3486955  src/engine.js
+dc136db498aea9da9dea44d3bc26fa88c6b0f53168b9966c5079755b7a5027e8  src/ocr.js
+e2292249ba169fa9d1db0656ee90ce69a8063dfd57e2981c7d9e2a0f463361ec  src/seg.js
+ab0807dbfcc9c91044462a861977f33f31c5dcde99b21bf63cd4f87492af63cd  src/ppocr.js
+7c37db5d4fc76e7169f4712f9666ef97f9874ebc84adc8bf004b2adb5ba4f4f0  src/calibration.json
+9e23e0103baa032fff46972b803dfe65e4e5e77280aa9687dd990c70bc6fe852  src/calibration_model.json
+63735ee6299a59fbdf2ca77437ae905cf66a1c2cbb73c6b77bec6ed9d7cc6ed2  harness.html
+# 2026-10-24, after the review of the shipped tree. Post test fixes, made after every test score above and not used to choose anything.
+#   engine.js  the chart finder merged a pie's legend into the chart box, which produced a second, spurious chart on
+#              examples/ex_pie.png. Small boxes without axes that touch a much larger box are now part of it (findCharts).
+#              The same warning (for example two series with nearly the same color) was listed once per pair, so a
+#              warning is now listed once per code and text. The count that feeds the confidence is unchanged (nIssues).
+#              The donut legend names ("Slice 1") were a symptom of the first bug and came back by themselves.
+#   ocr.js     only the comment at the top of the file was rewritten.
+#   harness.html moved to bench/harness.html, with its script paths changed.
+# Replaying the cached OCR words of all four held out sets through the fixed engine gives the same result for every chart
+# (timings and the order of repeated warnings aside) and the same headline numbers: results/v4/post_fix_replay.json.
+f55284007e8f2803d495470fac5a54713f1843c07870ea3837e529d35e374b8c  src/engine.js
+64a46df119a84a94505f055bc92e191ecb59087e76cd39ebe9e2a353f1e81b41  src/ocr.js
+e2292249ba169fa9d1db0656ee90ce69a8063dfd57e2981c7d9e2a0f463361ec  src/seg.js
+ab0807dbfcc9c91044462a861977f33f31c5dcde99b21bf63cd4f87492af63cd  src/ppocr.js
+7c37db5d4fc76e7169f4712f9666ef97f9874ebc84adc8bf004b2adb5ba4f4f0  src/calibration.json
+9e23e0103baa032fff46972b803dfe65e4e5e77280aa9687dd990c70bc6fe852  src/calibration_model.json
+56dc25facc92218f4031414454451bf35924313d7bfec96fc66e524fe25e90ec  bench/harness.html
+
+# Last edit after the post-test fixes: dash characters inside the OCR clean-up regular expressions in src/engine.js were
+# written as – and — escapes instead of the raw characters. The regular expressions match exactly the same text,
+# so no read can change. New hash:
+9a9660e1c2ceef48f663e7e85e53d83cb89ff97791c20cfb09faec577f490037  src/engine.js

@@ -1,0 +1,119 @@
+{
+ "synthetic_test3": {
+  "set": "dataset/synthetic-test3",
+  "charts": 318,
+  "charts_that_differ": 0,
+  "first_differences": [],
+  "headline_identical": true,
+  "old": {
+   "n": 318,
+   "n_readable": 305,
+   "read_right": 0.6983606557377049,
+   "success": 0.5245901639344263,
+   "refused": 0.39344262295081966,
+   "silent_wrong": 0.07540983606557378,
+   "median_err_all": 0.0027268917941082396,
+   "success_answered": 0.8648648648648649,
+   "within_2pct_all": 0.7311475409836066
+  },
+  "new": {
+   "n": 318,
+   "n_readable": 305,
+   "read_right": 0.6983606557377049,
+   "success": 0.5245901639344263,
+   "refused": 0.39344262295081966,
+   "silent_wrong": 0.07540983606557378,
+   "median_err_all": 0.0027268917941082396,
+   "success_answered": 0.8648648648648649,
+   "within_2pct_all": 0.7311475409836066
+  }
+ },
+ "families_test3": {
+  "set": "dataset/synthetic-families-test3",
+  "charts": 112,
+  "charts_that_differ": 0,
+  "first_differences": [],
+  "headline_identical": true,
+  "old": {
+   "n": 112,
+   "n_readable": 112,
+   "read_right": 0.6428571428571429,
+   "success": 0.44642857142857145,
+   "refused": 0.5089285714285714,
+   "silent_wrong": 0.044642857142857144,
+   "median_err_all": 0.0036722864834548147,
+   "success_answered": 0.9090909090909091,
+   "within_2pct_all": 0.6696428571428571
+  },
+  "new": {
+   "n": 112,
+   "n_readable": 112,
+   "read_right": 0.6428571428571429,
+   "success": 0.44642857142857145,
+   "refused": 0.5089285714285714,
+   "silent_wrong": 0.044642857142857144,
+   "median_err_all": 0.0036722864834548147,
+   "success_answered": 0.9090909090909091,
+   "within_2pct_all": 0.6696428571428571
+  }
+ },
+ "fred": {
+  "set": "real-fred",
+  "charts": 58,
+  "charts_that_differ": 0,
+  "first_differences": [],
+  "headline_identical": true,
+  "old": {
+   "n": 58,
+   "n_readable": 58,
+   "read_right": 0.5689655172413793,
+   "success": 0.3448275862068966,
+   "refused": 0.5862068965517241,
+   "silent_wrong": 0.017241379310344827,
+   "median_err_all": 0.01683942309511062,
+   "success_answered": 0.8333333333333334,
+   "within_2pct_all": 0.5689655172413793
+  },
+  "new": {
+   "n": 58,
+   "n_readable": 58,
+   "read_right": 0.5689655172413793,
+   "success": 0.3448275862068966,
+   "refused": 0.5862068965517241,
+   "silent_wrong": 0.017241379310344827,
+   "median_err_all": 0.01683942309511062,
+   "success_answered": 0.8333333333333334,
+   "within_2pct_all": 0.5689655172413793
+  }
+ },
+ "owid_test": {
+  "set": "dataset/real-owid",
+  "charts": 130,
+  "charts_that_differ": 0,
+  "first_differences": [],
+  "headline_identical": true,
+  "old": {
+   "n": 130,
+   "n_readable": 130,
+   "read_right": 0.4,
+   "success": 0.14615384615384616,
+   "refused": 0.8076923076923077,
+   "silent_wrong": 0.046153846153846156,
+   "median_err_all": 0.056819751129481504,
+   "success_answered": 0.76,
+   "within_2pct_all": 0.4076923076923077
+  },
+  "new": {
+   "n": 130,
+   "n_readable": 130,
+   "read_right": 0.4,
+   "success": 0.14615384615384616,
+   "refused": 0.8076923076923077,
+   "silent_wrong": 0.046153846153846156,
+   "median_err_all": 0.056819751129481504,
+   "success_answered": 0.76,
+   "within_2pct_all": 0.4076923076923077
+  }
+ },
+ "note": "Replay of the cached OCR words through the engine after the post test fixes (pie legend split, duplicate warning, donut legend names and x labels), compared with the scored default run chart by chart. Timings are left out of the comparison."
+}

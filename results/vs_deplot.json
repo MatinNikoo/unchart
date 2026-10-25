@@ -1,0 +1,62 @@
+{
+ "sets": {
+  "synthetic_test": {
+   "name": "Synthetic test v1 (27 charts)",
+   "unchart": {
+    "n": 27,
+    "read_right_k": 23,
+    "median_err": 0.0018277166666666714,
+    "within_5pct": 0.8888888888888888,
+    "refused_k": 9,
+    "silent_wrong_k": 2,
+    "ms_median": 2271.3000000044703
+   },
+   "deplot": {
+    "n": 27,
+    "read_right_k": 4,
+    "median_err": 0.15203333333333333,
+    "within_5pct": 0.2962962962962963,
+    "refused_k": 0,
+    "silent_wrong_k": 20,
+    "ms_median": 93792.96851158142
+   },
+   "fisher_p": 3.25312695226335e-07,
+   "subset_difficulty": {
+    "engine": "v1",
+    "whole_n": 526,
+    "whole_read_right": 0.6159695817490495,
+    "subset_n": 27,
+    "subset_read_right": 0.7037037037037037
+   }
+  },
+  "fred": {
+   "name": "FRED (5 charts)",
+   "unchart": {
+    "n": 5,
+    "read_right_k": 3,
+    "median_err": 0.008791150463685367,
+    "within_5pct": 0.8,
+    "refused_k": 4,
+    "silent_wrong_k": 0,
+    "ms_median": 3916.89999999851
+   },
+   "deplot": {
+    "n": 5,
+    "read_right_k": 0,
+    "median_err": 0.11696527533492196,
+    "within_5pct": 0.0,
+    "refused_k": 0,
+    "silent_wrong_k": 5,
+    "ms_median": 330270.391702652
+   },
+   "fisher_p": 0.16666666666666666,
+   "subset_difficulty": {
+    "engine": "v1",
+    "whole_n": 58,
+    "whole_read_right": 0.46551724137931033,
+    "subset_n": 5,
+    "subset_read_right": 0.6
+   }
+  }
+ }
+}

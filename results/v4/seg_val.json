@@ -1,0 +1,20 @@
+{
+ "model": "unchart_marks.onnx",
+ "charts": 150,
+ "iou": {
+  "background": 0.9782,
+  "series": 0.9451,
+  "text": 0.5999,
+  "gridline": 0.5097,
+  "legend": 0.0
+ },
+ "series_groups": {
+  "n": 356,
+  "mean_share_in_best_group": 0.8844,
+  "share_above_0.9": 0.6096,
+  "groups_n": 1251,
+  "group_share_of_main_series": 0.9161,
+  "groups_above_0.9": 0.7778
+ },
+ "radius": 1.5
+}
