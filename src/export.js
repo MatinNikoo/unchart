@@ -33,17 +33,21 @@
     return { head, rows };
   }
   const quote = (s, sep) => (s.includes(sep) || /["\n]/.test(s)) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  // a text cell that starts like a formula would run as one when the file is opened in a spreadsheet, so it gets a
+  // leading apostrophe. Real numbers, negative ones included, are left alone.
+  const noFormula = s => (/^[=+\-@\t\r]/.test(s) && !isFinite(+String(s).replace(',', '.'))) ? "'" + s : s;
   function delimited(t, o = {}, sep = ',') {
     // European numbers use a comma, so their CSV uses semicolons like spreadsheets in those locales do
     if (sep === ',' && o.euro) sep = ';';
     const M = matrix(t, o);
-    return [M.head, ...M.rows].map(r => r.map(c => quote(c, sep)).join(sep)).join('\n');
+    return [M.head, ...M.rows].map(r => r.map(c => quote(noFormula(c), sep)).join(sep)).join('\n');
   }
   function markdown(t, o = {}) {
     const M = matrix(t, o);
     return '| ' + M.head.join(' | ') + ' |\n|' + M.head.map((_, i) => i ? ' ---: |' : ' --- |').join('') + '\n' + M.rows.map(r => '| ' + r.join(' | ') + ' |').join('\n');
   }
-  const tex = s => String(s).replace(/([&%$#_{}])/g, '\\$1').replace(/~/g, '\\textasciitilde{}').replace(/\^/g, '\\textasciicircum{}');
+  const TEX = { '\\': '\\textbackslash{}', '~': '\\textasciitilde{}', '^': '\\textasciicircum{}', '&': '\\&', '%': '\\%', '$': '\\$', '#': '\\#', '_': '\\_', '{': '\\{', '}': '\\}' };
+  const tex = s => String(s).replace(/[\\~^&%$#_{}]/g, c => TEX[c]);
   function latex(t, o = {}) {
     const M = matrix(t, o);
     return ['\\begin{tabular}{l' + 'r'.repeat(M.head.length - 1) + '}', '\\toprule', M.head.map(tex).join(' & ') + ' \\\\', '\\midrule',

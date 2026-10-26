@@ -17,7 +17,9 @@ const S = { canvas: null, img: null, words: null, res: null, crop: null, view: '
   type: 'auto', model: false, hist: [], fut: [], mode: '', pick: null, calib: [], quad: null, boxes: null, showErr: false, euro: false, step: null };
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const fmt = v => typeof v === 'number' ? Unchart.fmt(v) : v;
-const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+// colors only ever go into a style attribute as a plain color, nothing else
+const safeColor = c => /^#[0-9a-f]{3,8}$/i.test(String(c)) || /^rgba?\([\d.,\s%]+\)$/i.test(String(c)) ? c : '#888888';
 const TYPE_NAME = { bar: 'Bars', hbar: 'Bars', grouped_bar: 'Grouped bars', stacked_bar: 'Stacked bars', stacked_hbar: 'Stacked bars', line: 'Line', step: 'Steps',
   area: 'Area', stacked_area: 'Stacked area', scatter: 'Dots', pie: 'Pie', donut: 'Donut', histogram: 'Histogram', bar_line: 'Bars + line' };
 const isPie = R => R && (R.chartType === 'pie' || R.chartType === 'donut');
@@ -30,7 +32,7 @@ const isPDF = b => b.type === 'application/pdf' || /\.pdf$/i.test(b.name || '');
 async function loadBlob(b) { if (isPDF(b)) return loadPDF(b); const u = URL.createObjectURL(b); try { return await loadURL(u); } finally { URL.revokeObjectURL(u); } }
 let pdfReady = null;
 function pdfLib() { if (!pdfReady) pdfReady = new Promise((ok, no) => { const s = document.createElement('script'); s.src = 'vendor/pdf.min.js'; s.onload = () => { pdfjsLib.GlobalWorkerOptions.workerSrc = abs('vendor/pdf.worker.min.js'); ok(pdfjsLib); }; s.onerror = no; document.head.appendChild(s); }); return pdfReady; }
-async function loadPDF(b) { const lib = await pdfLib(); S.pdf = await lib.getDocument({ data: await b.arrayBuffer() }).promise; S.page = 1; return renderPage(); }
+async function loadPDF(b) { const lib = await pdfLib(); S.pdf = await lib.getDocument({ data: await b.arrayBuffer(), isEvalSupported: false }).promise; S.page = 1; return renderPage(); }
 async function renderPage() {
   const pg = await S.pdf.getPage(S.page), vp = pg.getViewport({ scale: 2 });
   const c = document.createElement('canvas'); c.width = vp.width; c.height = vp.height; const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height);
@@ -201,7 +203,7 @@ function numStr(v, dec) {
 const errStr = e => e ? '±' + numStr(Math.max(e[0], e[1]), Math.min(6, S.dec + 1)) : '';
 function renderTable() {
   const T = S.table, show = S.showErr;
-  let h = `<thead><tr><th>${esc(T.xName)}</th>${T.cols.map((c, i) => `<th><span class="sw" style="background:${c.color}"></span><span contenteditable="${T.pie ? 'false' : 'true'}" spellcheck="false" data-col="${i}">${esc(c.name)}</span></th>${show ? '<th>±</th>' : ''}`).join('')}</tr></thead><tbody>`;
+  let h = `<thead><tr><th>${esc(T.xName)}</th>${T.cols.map((c, i) => `<th><span class="sw" style="background:${safeColor(c.color)}"></span><span contenteditable="${T.pie ? 'false' : 'true'}" spellcheck="false" data-col="${i}">${esc(c.name)}</span></th>${show ? '<th>±</th>' : ''}`).join('')}</tr></thead><tbody>`;
   T.rows.forEach((r, ri) => {
     h += `<tr data-r="${ri}"><td${T.pie ? ` contenteditable="true" spellcheck="false" data-name="${ri}"` : ''}>${esc(typeof r.x === 'number' ? numStr(r.x, 6) : r.x)}</td>${r.vals.map((v, ci) => `<td contenteditable="true" spellcheck="false" data-r="${ri}" data-c="${ci}"${r.pts[ci] && r.pts[ci].merged ? ' class="est" title="Overlapping dots, split by size"' : ''}>${numStr(v)}</td>${show ? `<td class="pm">${errStr(r.errs && r.errs[ci])}</td>` : ''}`).join('')}</tr>`;
   });
@@ -234,7 +236,7 @@ function renderInsights() {
   const statCard = `<div class="card"><h4>Summary</h4><div class="tablebox"><table class="mini"><thead><tr><th>Series</th><th>n</th><th>Mean</th><th>Median</th><th>SD</th><th>Min</th><th>Max</th></tr></thead><tbody>${stats.map(({ c, s }) => `<tr><td>${esc(c.name)}</td><td>${s.n}</td><td>${numStr(s.mean)}</td><td>${numStr(s.median)}</td><td>${numStr(s.sd)}</td><td>${numStr(s.min)}</td><td>${numStr(s.max)}</td></tr>`).join('')}</tbody></table></div></div>`;
   const desc = Unchart.describe(R);
   $('cards').innerHTML = (M.length ? `<div class="card"><h4>Moments</h4><dl class="kv">${M.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></div>` : '') +
-    cards.map(c => `<div class="card"><h4><span class="sw" style="background:${c.color}"></span>${esc(c.series)}</h4><dl class="kv">${c.items.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></div>`).join('') + statCard +
+    cards.map(c => `<div class="card"><h4><span class="sw" style="background:${safeColor(c.color)}"></span>${esc(c.series)}</h4><dl class="kv">${c.items.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></div>`).join('') + statCard +
     `<div class="card"><h4>Described in words</h4><p class="hint" id="altText">${esc(desc)}</p><div class="acts"><button class="btn" type="button" id="copyAlt">Copy as alt text</button></div></div>`;
   $('copyAlt').onclick = () => copy(desc, 'Copied. Paste it as the image alt text.');
 }

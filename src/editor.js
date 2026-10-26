@@ -7,6 +7,19 @@
   const RM = root.UnchartRemake, ST = root.UnchartStyle, PR = root.UnchartPresets;
   const clone = o => JSON.parse(JSON.stringify(o));
   const esc = ST.esc;
+  // anything read from a file or from browser storage may have been made by someone else, so it is cleaned before
+  // it can reach the chart or the panels: no prototype keys, no markup characters, sane sizes
+  const BAD_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+  function cleanIn(v, depth = 0) {
+    if (depth > 12) return undefined;
+    if (typeof v === 'string') return v.slice(0, 4000).replace(/</g, '\u2039').replace(/>/g, '\u203A').replace(/"/g, '\u201D').replace(/`/g, "'");
+    if (typeof v === 'number') return isFinite(v) ? v : null;
+    if (typeof v === 'boolean' || v === null) return v;
+    if (Array.isArray(v)) return v.slice(0, 1000).map(x => cleanIn(x, depth + 1)).filter(x => x !== undefined);
+    if (typeof v === 'object') { const o = {}; let n = 0; for (const k of Object.keys(v)) { if (BAD_KEYS.has(k) || ++n > 2000) continue; const c = cleanIn(v[k], depth + 1); if (c !== undefined) o[k] = c; } return o; }
+    return undefined;
+  }
+  const isObj = v => !!v && typeof v === 'object' && !Array.isArray(v);
   const getp = (o, p) => p.split('/').reduce((a, k) => a == null ? undefined : a[k], o);
   function setp(o, p, v) {
     const ks = p.split('/'); let a = o;
@@ -77,7 +90,7 @@
       const d = Object.assign(clone(RM.DEFAULTS), { type: t, index: false, legend: pie ? 'right' : 'top' });
       d.dl.on = pie;
       let th = null; try { th = JSON.parse(localStorage.getItem('unchart-theme-default') || 'null'); } catch (e) { th = null; }
-      if (th && th.set) applyLookTo(d, th.set, true);
+      if (th && isObj(th.set)) applyLookTo(d, cleanIn(th.set), true);
       return d;
     }
     function fresh() {
@@ -458,7 +471,7 @@
     }
 
     // saved themes live in the browser, and can be exported and imported as files
-    function loadThemes() { try { const t = JSON.parse(localStorage.getItem('unchart-themes') || '[]'); return Array.isArray(t) ? t : []; } catch (e) { return []; } }
+    function loadThemes() { try { const t = JSON.parse(localStorage.getItem('unchart-themes') || '[]'); return Array.isArray(t) ? t.map(x => cleanIn(x)).filter(x => isObj(x) && isObj(x.set)) : []; } catch (e) { return []; } }
     function storeThemes(t) { try { localStorage.setItem('unchart-themes', JSON.stringify(t)); } catch (e) { toast('This browser will not keep saved themes. Use Export to keep one as a file.'); } }
     function lookOf(spec) {
       const o = {}; PR.LOOK_KEYS.forEach(k => { if (spec[k] !== undefined) o[k] = clone(spec[k]); });
@@ -478,7 +491,7 @@
       if (t.dataset.th === 'apply' && th) { change(d => { applyLookTo(d, th.set, false); mergeInto(d, { ax: th.set.ax || {} }); }); toast(`Applied ${th.name}.`); }
       if (t.dataset.th === 'delete') { storeThemes(themes.filter(x => x.id !== id)); buildPane(); }
       if (t.dataset.th === 'export' && th) ctx.download(JSON.stringify({ unchartTheme: 1, name: th.name, set: th.set }, null, 1), 'application/json', 'unchart-theme-' + th.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.json');
-      if (t.dataset.th === 'import') pickFile('.json,application/json').then(async f => { try { const j = JSON.parse(await f.text()); if (!j.unchartTheme || !j.set) throw 0; const all = loadThemes(); all.push({ id: uid(), name: String(j.name || 'Imported').slice(0, 40), set: j.set }); storeThemes(all); buildPane(); toast('Theme imported.'); } catch (er) { toast('That file is not an Unchart theme.'); } });
+      if (t.dataset.th === 'import') pickFile('.json,application/json').then(async f => { try { const j = JSON.parse(await f.text()); if (!j.unchartTheme || !isObj(j.set)) throw 0; const all = loadThemes(); all.push({ id: uid(), name: cleanIn(String(j.name || 'Imported').slice(0, 40)), set: cleanIn(j.set) }); storeThemes(all); buildPane(); toast('Theme imported.'); } catch (er) { toast('That file is not an Unchart theme.'); } });
     });
     const pickFile = accept => new Promise(res => { const i = document.createElement('input'); i.type = 'file'; i.accept = accept; i.onchange = () => i.files[0] && res(i.files[0]); i.click(); });
 
@@ -487,10 +500,11 @@
       const T = ctx.getTable(), e = ED.spec, G = [], pie = isPieType();
       if (!T) return [group('Series', [K.note('Open a chart first.')])];
       const key = pie ? 'slices' : 'series', o = e[key] = e[key] || {}, n = pie ? T.rows.length : T.cols.length;
-      const order = Array.isArray(o.order) && o.order.length === n ? o.order : Array.from({ length: n }, (_, i) => i);
+      const okOrder = Array.isArray(o.order) && o.order.length === n && o.order.every(v => Number.isInteger(v) && v >= 0 && v < n) && new Set(o.order).size === n;
+      const order = okOrder ? o.order : Array.from({ length: n }, (_, i) => i);
       const pal = out ? out.geom.colors : [];
       const list = document.createElement('div'); list.className = 'serlist'; list.id = 'rSer';
-      list.innerHTML = order.map((i, pos) => { const nm = (o.names || {})[i] != null ? o.names[i] : pie ? String(T.rows[i].x) : T.cols[i].name, g = pal.find(c => c.key === (pie ? 'sl' : 's') + i), col = (o.colors || {})[i] || (g ? g.color : '#1F4FD8');
+      list.innerHTML = order.map((i, pos) => { const nm = (o.names || {})[i] != null ? o.names[i] : pie ? String(T.rows[i].x) : T.cols[i].name, g = pal.find(c => c.key === (pie ? 'sl' : 's') + i), col0 = (o.colors || {})[i] || (g ? g.color : '#1F4FD8'), col = ST.isHex(col0) ? col0 : '#1F4FD8';
         return `<div class="serrow" data-i="${i}"><input type="color" value="${col}" aria-label="Color for ${esc(nm)}" data-k="color"><input type="text" value="${esc(nm)}" aria-label="Name" data-k="name"><button type="button" data-k="fmt" title="Format this ${pie ? 'slice' : 'series'}" aria-label="Format ${esc(nm)}">Format</button><input type="checkbox" ${(o.hidden || []).includes(i) ? '' : 'checked'} aria-label="Show ${esc(nm)}" data-k="show"><button type="button" data-k="up" aria-label="Move up" ${pos ? '' : 'disabled'}>↑</button><button type="button" data-k="down" aria-label="Move down" ${pos < n - 1 ? '' : 'disabled'}>↓</button></div>`; }).join('');
       const g0 = group(pie ? 'Slices' : 'Series', [K.note(pie ? 'Click a slice in the picture to format it.' : 'Click a series in the picture, or press Format, to open its fill, line, markers and effects.')]); g0.querySelector('.gb').appendChild(list); G.push(g0);
       if (!pie && barType()) G.push(group('Bars', [K.rng('Gap between bars', 'bar/gap', { min: 0, max: 300, unit: '%' }), K.rng('Overlap', 'bar/overlap', { min: -100, max: 100, unit: '%', when: () => !stackType() && nSeries() > 1 }),
@@ -517,7 +531,7 @@
       if (e.type === 'click') {
         if (k === 'fmt') { select((pie ? 'sl' : 's') + i); setTab('format'); return; }
         if (k !== 'up' && k !== 'down') return;
-        change(d => { const o = d[pie ? 'slices' : 'series'], n = pie ? ctx.getTable().rows.length : ctx.getTable().cols.length, ord = Array.isArray(o.order) && o.order.length === n ? o.order.slice() : Array.from({ length: n }, (_, j) => j), p = ord.indexOf(i), q = k === 'up' ? p - 1 : p + 1; if (q >= 0 && q < n) { [ord[p], ord[q]] = [ord[q], ord[p]]; o.order = ord; } });
+        change(d => { const o = d[pie ? 'slices' : 'series'], n = pie ? ctx.getTable().rows.length : ctx.getTable().cols.length, ord = Array.isArray(o.order) && o.order.length === n && o.order.every(v => Number.isInteger(v) && v >= 0 && v < n) && new Set(o.order).size === n ? o.order.slice() : Array.from({ length: n }, (_, j) => j), p = ord.indexOf(i), q = k === 'up' ? p - 1 : p + 1; if (q >= 0 && q < n) { [ord[p], ord[q]] = [ord[q], ord[p]]; o.order = ord; } });
         const again = pane.querySelector(`.serrow[data-i="${i}"] [data-k="${k}"]`); if (again && !again.disabled) again.focus(); return;
       }
       if (k !== 'color' && k !== 'name' && k !== 'show') return;
@@ -860,7 +874,7 @@
       f.onload = () => { try { f.contentWindow.focus(); f.contentWindow.print(); } catch (e) { toast('Printing is blocked here. Use the PDF button.'); } setTimeout(() => f.remove(), 4000); }; document.body.appendChild(f);
     }
     function saveChartFile() { const s = clone(ED.spec); ctx.download(JSON.stringify({ unchartChart: 1, spec: s }, null, 1), 'application/json', nameOf() + '.unchart.json'); }
-    function openChartFile() { pickFile('.json,application/json').then(async f => { try { const j = JSON.parse(await f.text()); if (!j.unchartChart || !j.spec) throw 0; change(d => { const keep = { type: d.type, index: d.index }; Object.keys(d).forEach(k => delete d[k]); Object.assign(d, clone(RM.DEFAULTS), j.spec); if (!RM.TYPES.includes(d.type)) d.type = keep.type; }); toast('Chart settings opened.'); } catch (er) { toast('That file is not an Unchart chart file.'); } }); }
+    function openChartFile() { pickFile('.json,application/json').then(async f => { try { const j = JSON.parse(await f.text()); if (!j.unchartChart || !isObj(j.spec)) throw 0; const spec = cleanIn(j.spec); change(d => { const keep = { type: d.type, index: d.index }; Object.keys(d).forEach(k => delete d[k]); Object.assign(d, clone(RM.DEFAULTS), spec); if (!RM.TYPES.includes(d.type)) d.type = keep.type; }); toast('Chart settings opened.'); } catch (er) { toast('That file is not an Unchart chart file.'); } }); }
 
     // ---------- tabs ----------
     function setTab(t) {

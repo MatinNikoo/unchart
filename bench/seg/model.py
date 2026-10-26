@@ -67,3 +67,13 @@ def disc_loss(emb, inst, dv=0.5, dd=3.0, cap=3000):
             dist = F.relu(2 * dd - D[~torch.eye(k, dtype=torch.bool)]).pow(2).mean()
         tot = tot + var + dist + 0.001 * M.norm(dim=1).mean(); n += 1
     return tot / max(n, 1)
+
+
+def load_ckpt(path):
+    """Loads a training checkpoint without running any code stored in it. Only tensors, plain numbers and the
+    numpy scalars the optimizer saves are allowed, so a swapped .pt file can't do anything but fail."""
+    import numpy as np
+    core = getattr(np, "_core", None) or np.core
+    allowed = [core.multiarray.scalar, np.dtype] + [type(np.dtype(t)) for t in ("float64", "float32", "int64", "int32")]
+    with torch.serialization.safe_globals(allowed):
+        return torch.load(path, weights_only=True, map_location="cpu")

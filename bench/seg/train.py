@@ -10,7 +10,7 @@ import torch
 import torch.nn.functional as F
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from model import Net, disc_loss
+from model import Net, disc_loss, load_ckpt
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--data", default="data/seg/train")
@@ -90,7 +90,7 @@ opt = torch.optim.AdamW(net.parameters(), lr=A.lr, weight_decay=1e-4)
 it0 = 0
 lp = os.path.join(A.out, "last.pt")
 if os.path.exists(lp):
-    ck = torch.load(lp, weights_only=False); net.load_state_dict(ck["net"]); it0 = ck["it"]
+    ck = load_ckpt(lp); net.load_state_dict(ck["net"]); it0 = ck["it"]
     if "opt" in ck: opt.load_state_dict(ck["opt"])
     print("resume at", it0, flush=True)
 # warm up again after every resume (the optimizer state may be fresh)

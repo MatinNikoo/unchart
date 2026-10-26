@@ -123,3 +123,18 @@ test('xlsx chart follows an editor description: fills, dashes, axes, labels and 
   assert.ok(out.xml.gradFill && out.xml.pattFill && out.xml.prstDash && out.xml.dLbls, 'gradient, pattern, dash and labels reach the XML');
   assert.ok(out.descr, 'alt text is stored on the drawing');
 });
+
+test('text that looks like a formula never runs as one in a spreadsheet', () => {
+  const H = { xName: '=cmd', cols: [{ name: '+SUM(A1)' }, { name: '@x' }], rows: [{ x: '-label', vals: [-3.5, 2] }, { x: 'ok', vals: [1, -2] }] };
+  const rows = E.csv(H).split('\n');
+  assert.strictEqual(rows[0], "'=cmd,'+SUM(A1),'@x");
+  assert.strictEqual(rows[1], "'-label,-3.5,2");
+  assert.strictEqual(rows[2], 'ok,1,-2');
+  assert.ok(E.tsv(H).startsWith("'=cmd\t"));
+});
+
+test('latex escapes backslashes so a label cannot run a command', () => {
+  const L = E.latex({ xName: '\\input{x}', cols: [{ name: 'a_b' }], rows: [{ x: 'c', vals: [1] }] });
+  assert.ok(L.includes('\\textbackslash{}input\\{x\\}'));
+  assert.ok(!L.includes('\\input{x}'));
+});

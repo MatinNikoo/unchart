@@ -21,7 +21,8 @@ SETS = [
 
 
 def score(setdir, res):
-    out = tempfile.mktemp(suffix=".json")
+    fd, out = tempfile.mkstemp(suffix=".json")
+    os.close(fd)
     subprocess.run([sys.executable, os.path.join(HERE, "score.py"), os.path.join(ROOT, setdir), res, "--out", out, "--quiet"], check=True, stdout=subprocess.DEVNULL)
     d = json.load(open(out))
     os.remove(out)
