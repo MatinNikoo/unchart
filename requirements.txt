@@ -1,6 +1,6 @@
 # the versions the results in results/ were made with (Python 3.13)
 # scoring, calibration and the report: bench/score.py, bench/calibrate.py, bench/report.py
-numpy==2.5.3
+numpy==2.5.4
 scipy==1.18.1
 scikit-learn==1.9.1
 matplotlib==3.11.2
