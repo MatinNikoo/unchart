@@ -1,4 +1,4 @@
 # training the mark model (bench/seg/), not needed to run the app, the tests or the benchmark
 torch==2.5.1
 onnx==1.23.2
-onnxruntime==1.29.0
+onnxruntime==1.31.0
